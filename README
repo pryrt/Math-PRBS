@@ -1,0 +1,2 @@
+# Math-PRBS
+Perl module to generate Pseudorandom Bit Sequences (PRBS) using a Linear Feedback Shift Register (LFSR)
