@@ -87,6 +87,7 @@ C<taps> needs an array reference containing the powers in the polynomial that yo
     {
         die __PACKAGE__."::new(taps => $pairs{taps}): argument should be an array reference" unless 'ARRAY' eq ref($pairs{taps});
         $self->{taps} = [ reverse sort @{ $pairs{taps} } ];     # taps in descending order
+        die __PACKAGE__."::new(taps => $pairs{taps}): need at least one tap" unless @{ $pairs{taps} };
     }
 
 =item C<poly =E<gt> '...'>
@@ -110,7 +111,15 @@ C<poly> needs a string for the bits C<k> ... C<1>), with a 1 indicating the powe
         }
         $self->{taps} = [ reverse sort @taps ];
         die __PACKAGE__."::new(poly => '$pairs{poly}'): need at least one tap" unless @taps;
+    } else {
+        die __PACKAGE__."::new(".join(',',%pairs)."): unknown arguments";
     }
+
+    $self->{lfsr} = oct('0b1' . '0'x($self->{taps}[0] - 1));
+    $self->{start} = $self->{lfsr};
+
+    return $self;
+}
 
 =back
 
@@ -128,14 +137,6 @@ sub reset {
 }
 
 =back
-
-=cut
-
-    $self->{lfsr} = oct('0b1' . '0'x($self->{taps}[0] - 1));
-    $self->{start} = $self->{lfsr};
-
-    return $self;
-}
 
 =head2 Iterating
 
@@ -182,7 +183,7 @@ A pseudorandom binary sequence (PRBS) is the sequence of N unique bits, in this 
 
 In an LFSR, the polynomial description (like C<x^3 + x^2 + 1>) indicates which bits are "tapped" to create the feedback bit: the taps are the powers of x in the polynomial (3 and 2).  The C<1> is really the C<x^0> term, and isn't a "tap", in the sense that it isn't used for generating the feedback; instead, that is the location where the new feedback bit comes back into the shift register; the C<1> is in all characteristic polynomials, and is implied when creating a new instance of B<Math::PRBS>.
 
-If the largest power of the polynomial is C<k>, there are C<k+1> bits in the register (one for each of the powers C<k..1> and one for the C<x^0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and that sequence is called a maximum length sequence (MLS); there can be more than one MLS for a given C<k>.  One useful feature of an MLS is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits, except for C<k> zeroes in a row.  For example,
+If the largest power of the polynomial is C<k>, there are C<k+1> bits in the register (one for each of the powers C<k..1> and one for the C<x^0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and that sequence is called a maximum length sequence (MLS); there can be more than one MLS for a given C<k>.  One useful feature of an MLS is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits (*), except for C<k> zeroes in a row.  For example,
 
     # x^3 + x^2 + 1 = "1011100"
     "_101_1100 " -> 101
@@ -195,7 +196,9 @@ If the largest power of the polynomial is C<k>, there are C<k+1> bits in the reg
 
 The Wikipedia:LFSR article (see L</REFERENCES>) lists some polynomials that create MLS for various register sizes, and links to Philip Koopman's complete list up to C<k=64>.
 
-Since a maximum length sequence contains every k-bit combination (except all zeroes), it can be used for verifying that software or hardware behaves properly for every possible sequence of k-bits.
+If you want to create try own polynonial to find a long MLS, here are some things to consider: 1) the number of taps for the feedback (remembering not to count the feedback bit as a tap) must be even; 2) the entire set of taps must be relatively prime; 3) those two conditions are necesssary, but not sufficient, so you may have to try multiple polynomials to find an MLS; 4) keep in mind that the time to compute the period (and thus determine if it's an MLS) doubles every time C<k> increases by 1; as the time increases, it makes more sense to look at the complete list up to C<k=64>), and pure-perl is probably tpp wrong language for searching C<kE<gt>64>.
+
+(*) Since a maximum length sequence contains every k-bit combination (except all zeroes), it can be used for verifying that software or hardware behaves properly for every possible sequence of k-bits.
 
 =head1 REFERENCES
 
