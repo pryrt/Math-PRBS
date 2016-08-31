@@ -19,11 +19,11 @@ use version 0.77; our $VERSION = version->declare('0.001_001');
 
 =head1 DESCRIPTION
 
-This module will generate various Pseudorandom Binary Sequences (PRBS).  The sequences is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.
+This module will generate various Pseudorandom Binary Sequences (PRBS).  This module creates a iterator object, and you can use that object to generate the sequence one value at a time, or I<en masse>.
+
+The generated sequence is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.
 
 It is implemented using an XOR-based Linear Feedback Shift Register (LFSR), which is described using a feedback polynomial (or reciprocal characteristic polynomial).  The terms that appear in the polynomial are called the 'taps', because you tap off of that bit of the shift register for generating the feedback for the next value in the sequence.
-
-This module creates a iterator object, and you can use that object to generate the sequence one value at a time, or I<en masse>.
 
 =head1 FUNCTIONS AND METHODS
 

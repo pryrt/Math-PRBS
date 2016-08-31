@@ -36,20 +36,18 @@ use 5.006;
                 },
             },
             keywords => [ 'Pseudorandom Binary Sequence', 'PRBS', 'Linear Feedback Shift Register', 'LFSR'],
-            # don't use 'provides', because it's an extra step to maintain, and
+            # don't use manual 'provides', because it's an extra step to maintain, and
             # can cause problems (getting a mismatch between the $VERSION string and the
             # provides->{version} will really make it hard to release a next version into CPAN
         },
         # automatically determine the versions for 'provides'; MM->parse_version exists as of MM v6.31, so not a problem with >= 6.46
-        my $v = MM->parse_version( $mm_args{VERSION_FROM} );    # valid back to MM v6.31, so not a problem with >= 6.46
-        {
-            $mm_args{META_MERGE}{provides} = {
-                $mm_args{NAME} => {
-                    file => $mm_args{VERSION_FROM},
-                    version => "$v",                    # this comes out right when printed... but MYMETA.* shows values that look wrong
-                }
-            };
-        }
+        #   => this comes out right when printed... but MYMETA.* shows values that look wrong
+        $mm_args{META_MERGE}{provides} = {
+            $mm_args{NAME} => {
+                file => $mm_args{VERSION_FROM},
+                version => ''.MM->parse_version( $mm_args{VERSION_FROM} ),
+            }
+        };
     }
     if( $ExtUtils::MakeMaker::VERSION >= '6.31' ) {
         $mm_args{LICENSE} = 'perl_5';
