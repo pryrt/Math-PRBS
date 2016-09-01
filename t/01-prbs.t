@@ -16,19 +16,19 @@ is( ref($seq), 'Math::PRBS',                    'PRBS7: Create' );
 is_deeply( $seq->{taps}, [7,6],                 'PRBS7: ->taps          = x^7 + x^6 + 1' );
 is( $seq->next(), '1',                          'PRBS7: ->next: scalar  = v[i]       = first' );
 is_deeply( [$seq->next()], ['1','0'],           'PRBS7: ->next: list    = i, v[i]    = second' );
-is( $seq->{i}, '2',                             'PRBS7: ->tell_i        = i advanced to 2 after ->next()' );
+is( $seq->tell_i, '2',                          'PRBS7: ->tell_i        = i advanced to 2 after ->next()' );
 ok( !defined($seq->{period}),                   'PRBS7: ->period        = period should not be defined yet' );
 is_deeply( [$seq->next()], ['2','0'],           'PRBS7: ->next: list    = i, v[i]    = third' );
 $seq->next()    until defined $seq->{period};
-is( $seq->{i}, '127',                           'PRBS7: ->tell_i        = end of sequence, because looped until period defined' );
+is( $seq->tell_i, '127',                        'PRBS7: ->tell_i        = end of sequence, because looped until period defined' );
 ok( defined($seq->{period}),                    'PRBS7: ->period        = defined' );
 is( $seq->{period}, 2**7-1,                     'PRBS7: ->period        = length of sequence' );
 $seq->rewind();
-is( $seq->{i}, '0',                             'PRBS7: ->rewind        = iterator reset to 0' );
+is( $seq->tell_i, '0',                          'PRBS7: ->rewind        = iterator reset to 0' );
 ok( defined($seq->{period}),                    'PRBS7: ->period        = still defined' );
 is( $seq->{period}, '127',                      'PRBS7: ->period        = still length of sequence' );
 my $exp = '1000001100001010001111001000101100111010100111110100001110001001001101101011011110110001101001011101110011001010101111111000000';
-my $got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+my $got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'PRBS7: ->all: scalar   = full sequence, as string');
 
 $seq = Math::PRBS->new( prbs => 15 );
@@ -62,7 +62,7 @@ $seq->next()    until defined $seq->{period};
 is( $seq->{period}, 2**3-1,                     'taps => [3,2] ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
-$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'taps => [3,2] ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( taps => [3,1] );
@@ -71,7 +71,7 @@ $seq->next()    until defined $seq->{period};
 is( $seq->{period}, 2**3-1,                     'taps => [3,1] ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
-$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'taps => [3,1] ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( taps => [3,2,1] );
@@ -80,7 +80,7 @@ $seq->next()    until defined $seq->{period};
 is( $seq->{period}, 4,                          'taps => [3,2,1] ->period  = not a maximum length sequence' );
 $seq->rewind();
 $exp = '1100';
-$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'taps => [3,2,1] ->all     = full sequence, as string');
 
 $seq = Math::PRBS->new( poly => '110' );
@@ -89,7 +89,7 @@ $seq->next()    until defined $seq->{period};
 is( $seq->{period}, 2**3-1,                     'poly => "110" ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
-$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'poly => "110" ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( poly => '101' );
@@ -98,7 +98,7 @@ $seq->next()    until defined $seq->{period};
 is( $seq->{period}, 2**3-1,                     'poly => "101" ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
-$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->{i} < $seq->{period});      # replace with $got = $seq->all()
+$got = ''; $got .= $seq->next() while !defined($seq->{period}) || ($seq->tell_i < $seq->{period});      # replace with $got = $seq->all()
 is( $got, $exp,                                 'poly => "101" ->all       = full sequence, as string' );
 
 # test for proper 'die'
@@ -107,6 +107,9 @@ ok( $@ ,                                        "new(unknown=>1) should fail due
 
 eval { $seq = Math::PRBS->new( 15 ); };
 ok( $@ ,                                        "new(15) should fail due to invalid arguments: $@" );
+    # would need { no warnings qw(misc uninitialized); } in ->new() to prevent the warnings from printing
+    #   misc: 'odd number of elements in hash assignment'
+    #   uninitialized: 'use of uninitialized value $pairs{"15"} in join or string'
 
 eval { $seq = Math::PRBS->new( prbs => 3 ); };
 ok( $@ ,                                        "new(prbs=>3) should fail due to invalid standard prbs: $@" );
@@ -122,7 +125,5 @@ ok( $@ ,                                        "new(taps=>'xyz') should fail du
 
 eval { $seq = Math::PRBS->new( poly => '000' ); };
 ok( $@ ,                                        "new(taps=>'000') should fail due to poly needing at least one tap: $@" );
-
-
 
 done_testing();

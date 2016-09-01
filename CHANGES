@@ -1,4 +1,26 @@
 Revision history for Perl module Math::PRBS.
 
+v0.001_002
+    - add ->tell_i()
+    TODO
+    - INFO:
+    - ->description()
+    - ->period([force]): if period defined, return period; if undefined and
+        force==TRUE, then iterate thru all
+    - ->oeis_anum(): for the fixed answers, return the OEIS A#####
+    - ->tell_state(): tells the internal state (the value of the shift
+        register)
+    - additional ITERATION methods: ie, from OPTIONAL section of NumSeq, or
+    - ->generate_all([limit]): generates the whole list, from the
+        beginning: in SCALAR context, returns a string, in list context,
+        returns a list/array.  If limit is non-zero, will stop after either
+        {period} is reached, or stop at {limit} elements and append '...';
+        if limit is undef or 0, default to 2**15-1 elements (ie, PRBS15).
+    - ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
+        tell_i or 0 to $i
+    - ->ith($i): alias for seek_to_i()
+    - ->seek_to_state($state): ->rewind(), then loop until ->tell_state()
+        is equal to $state
+
 v0.001_001
     - Initial experiments

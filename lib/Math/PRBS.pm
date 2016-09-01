@@ -7,7 +7,7 @@ package Math::PRBS;
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = version->declare('0.001_001');
+use version 0.77; our $VERSION = version->declare('0.001_002');
 
 =head1 SYNOPSIS
 
@@ -174,6 +174,35 @@ Rewinds the sequence back to the starting state.  The subsequent call to C<next(
 =cut
 
 BEGIN { *rewind = \&reset; }
+
+=item C<$i = $seq-E<gt>tell_i()>
+
+Return the current i positioin.  The subsequent call to C<next()> will return this i.
+
+=cut
+
+sub tell_i {
+    my $self = shift;
+    return $self->{i};
+}
+
+=back
+
+=head2 Information
+
+=over
+
+=item C<$i = $seq-E<gt>description()>
+
+Returns a string describing the sequence in terms of the polynomial.
+
+    $prbs7->description()   # "PRBS from polynomial x^7 + x^6 + 1"
+
+=item C<$i = $seq-E<gt>period( I<force> )>
+
+Returns the period of the sequence, or undef if it hasn't been determined yet.  If I<force> is true, it will force all elements to be computed, in order to determine the period (not recommended for sequences of C<k E<gt> 23>.
+
+=item C<$i = $seq-E<gt>...>
 
 =back
 
