@@ -2,12 +2,12 @@ Revision history for Perl module Math::PRBS.
 
 v0.001_002
     - add ->tell_i()
+    - add ->description(): lists the polynomial string
+    - add ->oeis_anum(): lists OEIS# for known taps, or undef if unknown
     TODO
     - INFO:
-    - ->description()
     - ->period([force]): if period defined, return period; if undefined and
         force==TRUE, then iterate thru all
-    - ->oeis_anum(): for the fixed answers, return the OEIS A#####
     - ->tell_state(): tells the internal state (the value of the shift
         register)
     - additional ITERATION methods: ie, from OPTIONAL section of NumSeq, or
