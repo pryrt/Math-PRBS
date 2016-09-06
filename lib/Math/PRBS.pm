@@ -47,17 +47,17 @@ sub new {
 
 C<prbs> needs an integer I<n> to indicate one of the "standard" PRBS polynomials.
 
-    # example: PRBS7 = x^7 + x^6 + 1
+    # example: PRBS7 = x**7 + x**6 + 1
     $seq = Math::PRBS::new( ptbs => 7 );
 
 The "standard" PRBS polynomials implemented are
 
-    polynomial      | prbs       | taps            | poly (string)
-    ----------------+------------+-----------------+---------------
-    x^7 + x^6 + 1   | prbs => 7  | taps => [7,6]   | poly => '1100000'
-    x^15 + x^14 + 1 | prbs => 15 | taps => [15,14] | poly => '110000000000000'
-    x^23 + x^18 + 1 | prbs => 23 | taps => [23,18] | poly => '10000100000000000000000'
-    x^31 + x^28 + 1 | prbs => 31 | taps => [31,28] | poly => '1001000000000000000000000000000'
+    polynomial        | prbs       | taps            | poly (string)
+    ------------------+------------+-----------------+---------------
+    x**7 + x**6 + 1   | prbs => 7  | taps => [7,6]   | poly => '1100000'
+    x**15 + x**14 + 1 | prbs => 15 | taps => [15,14] | poly => '110000000000000'
+    x**23 + x**18 + 1 | prbs => 23 | taps => [23,18] | poly => '10000100000000000000000'
+    x**31 + x**28 + 1 | prbs => 31 | taps => [31,28] | poly => '1001000000000000000000000000000'
 
 =cut
 
@@ -75,9 +75,9 @@ The "standard" PRBS polynomials implemented are
 
 =item C<taps =E<gt> [ I<tap>, I<tap>, ... ]>
 
-C<taps> needs an array reference containing the powers in the polynomial that you tap off for creating the feedback. Do I<not> include the C<0> for the C<x^0 = 1> in the polynomial; that's automatically included.
+C<taps> needs an array reference containing the powers in the polynomial that you tap off for creating the feedback. Do I<not> include the C<0> for the C<x**0 = 1> in the polynomial; that's automatically included.
 
-    # example: x^3 + x^2 + 1
+    # example: x**3 + x**2 + 1
     #   3 and 2 are taps, 1 is not tapped, 0 is implied feedback
     $seq = Math::PRBS::new( taps => [3,2] );
 
@@ -86,15 +86,15 @@ C<taps> needs an array reference containing the powers in the polynomial that yo
     elsif( exists $pairs{taps} )
     {
         die __PACKAGE__."::new(taps => $pairs{taps}): argument should be an array reference" unless 'ARRAY' eq ref($pairs{taps});
-        $self->{taps} = [ reverse sort @{ $pairs{taps} } ];     # taps in descending order
+        $self->{taps} = [ sort {$b <=> $a} @{ $pairs{taps} } ];     # taps in descending order
         die __PACKAGE__."::new(taps => $pairs{taps}): need at least one tap" unless @{ $pairs{taps} };
     }
 
 =item C<poly =E<gt> '...'>
 
-C<poly> needs a string for the bits C<k> ... C<1>), with a 1 indicating the power is included in the list, and a 0 indicating it is not.
+C<poly> needs a string for the bits C<x**k> downto C<x**1>, with a 1 indicating the power is included in the list, and a 0 indicating it is not.
 
-    # example: x^3 + x^2 + 1
+    # example: x**3 + x**2 + 1
     #   3 and 2 are taps, 1 is not tapped, 0 is implied feedback
     $seq = Math::PRBS::new( poly => '110' );
 
@@ -109,7 +109,7 @@ C<poly> needs a string for the bits C<k> ... C<1>), with a 1 indicating the powe
         while( m/([01])/g ) {
             push @taps, $l - pos() + 1     if $1;
         }
-        $self->{taps} = [ reverse sort @taps ];
+        $self->{taps} = [ reverse sort {$a <=> $b} @taps ];
         die __PACKAGE__."::new(poly => '$pairs{poly}'): need at least one tap" unless @taps;
     } else {
         die __PACKAGE__."::new(".join(',',%pairs)."): unknown arguments";
@@ -177,13 +177,22 @@ BEGIN { *rewind = \&reset; }
 
 =item C<$i = $seq-E<gt>tell_i()>
 
-Return the current i positioin.  The subsequent call to C<next()> will return this i.
+Return the current i position.  The subsequent call to C<next()> will return this i.
 
 =cut
 
 sub tell_i {
-    my $self = shift;
-    return $self->{i};
+    return $_[0]->{i};
+}
+
+=item C<$state = $seq-E<gt>tell_state()>
+
+Return the current internal state of the feedback register.  Useful for debug, or plugging into C<-E<gt>seek_to_state($state)> to get back to this state at some future point in the program.
+
+=cut
+
+sub tell_state {
+    return $_[0]->{lfsr};
 }
 
 =back
@@ -196,23 +205,66 @@ sub tell_i {
 
 Returns a string describing the sequence in terms of the polynomial.
 
-    $prbs7->description     # "PRBS from polynomial x^7 + x^6 + 1"
+    $prbs7->description     # "PRBS from polynomial x**7 + x**6 + 1"
 
 =cut
 
 sub description {
     my $self = shift;
     my $p = '';
-    foreach ( @{ $self->{taps} } ) {
+    foreach ( reverse sort {$a <=> $b} @{ $self->{taps} } ) {
         $p .= ' + ' if $p;
-        $p .= "x^$_";
+        $p .= "x**$_";
     }
     return "PRBS from polynomial $p + 1";
 }
 
+=item C<$i = $seq-E<gt>taps>
+
+Returns an array-reference containing the list of tap identifiers, which could then be passed to C<-E<gt>new(taps =E<gt> ...)>.
+
+    my $old_prbs = ...;
+    my $new_prbs = Math::PRBS->new( taps => $old_prbs->taps() );
+
+=cut
+
+sub taps {
+    my @taps = @{ $_[0]->{taps} };
+    return [@taps];
+}
+
 =item C<$i = $seq-E<gt>period( I<force> )>
 
-Returns the period of the sequence, or undef if it hasn't been determined yet.  If I<force> is true, it will force all elements to be computed, in order to determine the period (not recommended for sequences of C<k E<gt> 23>.
+Returns the period of the sequence.
+
+    $i = $seq-E<gt>period();
+
+Without any arguments, will return undef if the period hasn't been determined yet.
+
+    $i = $seq->period('force');
+
+If I<force> is "force", it will try to generate the whole sequence (up to C<i = 2**23 - 1>), and return the period if found, or undef if not found.
+
+    $i = $seq->period('forceBig');
+
+If I<force> is "forceBig", it will loop thru the entire sequence (up to C<i = 2**k - 1>), and return the period that was found.  It will still return  undef if still not found, but all sequences B<should> find the period within C<2**k-1>.  If you find a sequence that doesn't, feel free to file a bug report, including the C<Math::PRBS-E<gt>new()> command listing the taps array or poly string; if C<k> is greater than C<32>, please include a code that fixes the bug in the bug report, as development resources may not allow for debug of issues when C<k E<gt> 32>.
+
+=cut
+
+sub period {
+    my $self = shift;
+    my $force = shift || 0;
+    return $self->{period} if defined $self->{period};      # if period's already computed, use it
+    my $max = 2**$self->{taps}[0] - 1;
+    return $max if $force =~ /^(est|estimate)$/i;
+
+    # ... loop thru all, but safely ... #
+    if($force =~ /^force/i ) {  # 'force' or 'forceBig'
+        $max = 8_388_607 if (($max>8_388_607) && ($force !~ /^forceBig/i));     # don't go more than 2**23-1 unless forceBig
+        $self->next while $self->{i}<$max && !defined $self->{period};
+    }
+    return $self->{period};
+}
 
 =item C<$i = $seq-E<gt>oeis_anum>
 
@@ -220,99 +272,99 @@ For known polynomials, return the L<On-line Encyclopedia of Integer Sequences|ht
 
 Not all maximum-length PRBS sequences (binary m-sequences) are in OEIS.  Of the four "standard" PRBS (7, 15, 23, 31) mentioned above, only PRBS7 is there, as L<A011686|https://oeis.org/A011686>.  If you have the A-number for other m-sequences that aren't included below, please let the module maintainer know.
 
-    Polynomial                            | Taps                  | OEIS
-    --------------------------------------+-----------------------+---------
-    x^2 + x^1 + 1                         | [ 2, 1 ]              | A011655
-    x^3 + x^2 + 1                         | [ 3, 2 ]              | A011656
-    x^3 + x^1 + 1                         | [ 3, 1 ]              | A011657
-    x^4 + x^3 + x^2 + x^1 + 1             | [ 4, 3, 2, 1 ]        | A011658
-    x^4 + x^1 + 1                         | [ 4, 1 ]              | A011659
-    x^5 + x^4 + x^2 + x^1 + 1             | [ 5, 4, 2, 1 ]        | A011660
-    x^5 + x^3 + x^2 + x^1 + 1             | [ 5, 3, 2, 1 ]        | A011661
-    x^5 + x^2 + 1                         | [ 5, 2 ]              | A011662
-    x^5 + x^4 + x^3 + x^1 + 1             | [ 5, 4, 3, 1 ]        | A011663
-    x^5 + x^3 + 1                         | [ 5, 3 ]              | A011664
-    x^5 + x^4 + x^3 + x^2 + 1             | [ 5, 4, 3, 2 ]        | A011665
-    x^6 + x^5 + x^4 + x^1 + 1             | [ 6, 5, 4, 1 ]        | A011666
-    x^6 + x^5 + x^3 + x^2 + 1             | [ 6, 5, 3, 2 ]        | A011667
-    x^6 + x^5 + x^2 + x^1 + 1             | [ 6, 5, 2, 1 ]        | A011668
-    x^6 + x^1 + 1                         | [ 6, 1 ]              | A011669
-    x^6 + x^4 + x^3 + x^1 + 1             | [ 6, 4, 3, 1 ]        | A011670
-    x^6 + x^5 + x^4 + x^2 + 1             | [ 6, 5, 4, 2 ]        | A011671
-    x^6 + x^3 + 1                         | [ 6, 3 ]              | A011672
-    x^6 + x^5 + 1                         | [ 6, 5 ]              | A011673
-    x^7 + x^6 + x^5 + x^4 + x^3 + x^2 + 1 | [ 7, 6, 5, 4, 3, 2 ]  | A011674
-    x^7 + x^4 + 1                         | [ 7, 4 ]              | A011675
-    x^7 + x^6 + x^4 + x^2 + 1             | [ 7, 6, 4, 2 ]        | A011676
-    x^7 + x^5 + x^2 + x^1 + 1             | [ 7, 5, 2, 1 ]        | A011677
-    x^7 + x^5 + x^3 + x^1 + 1             | [ 7, 5, 3, 1 ]        | A011678
-    x^7 + x^6 + x^4 + x^1 + 1             | [ 7, 6, 4, 1 ]        | A011679
-    x^7 + x^6 + x^5 + x^4 + x^2 + x^1 + 1 | [ 7, 6, 5, 4, 2, 1 ]  | A011680
-    x^7 + x^6 + x^5 + x^3 + x^2 + x^1 + 1 | [ 7, 6, 5, 3, 2, 1 ]  | A011681
-    x^7 + x^1 + 1                         | [ 7, 1 ]              | A011682
-    x^7 + x^5 + x^4 + x^3 + x^2 + x^1 + 1 | [ 7, 5, 4, 3, 2, 1 ]  | A011683
-    x^7 + x^4 + x^3 + x^2 + 1             | [ 7, 4, 3, 2 ]        | A011684
-    x^7 + x^6 + x^3 + x^1 + 1             | [ 7, 6, 3, 1 ]        | A011685
-    x^7 + x^6 + 1                         | [ 7, 6 ]              | A011686
-    x^7 + x^6 + x^5 + x^4 + 1             | [ 7, 6, 5, 4 ]        | A011687
-    x^7 + x^5 + x^4 + x^3 + 1             | [ 7, 5, 4, 3 ]        | A011688
-    x^7 + x^3 + x^2 + x^1 + 1             | [ 7, 3, 2, 1 ]        | A011689
-    x^7 + x^3 + 1                         | [ 7, 3 ]              | A011690
-    x^7 + x^6 + x^5 + x^2 + 1             | [ 7, 6, 5, 2 ]        | A011691
-    x^8 + x^6 + x^4 + x^3 + x^2 + x^1 + 1 | [ 8, 6, 4, 3, 2, 1 ]  | A011692
-    x^8 + x^5 + x^4 + x^3 + 1             | [ 8, 5, 4, 3 ]        | A011693
-    x^8 + x^7 + x^5 + x^3 + 1             | [ 8, 7, 5, 3 ]        | A011694
-    x^8 + x^7 + x^6 + x^5 + x^4 + x^2 + 1 | [ 8, 7, 6, 5, 4, 2 ]  | A011695
-    x^8 + x^7 + x^6 + x^5 + x^4 + x^3 + 1 | [ 8, 7, 6, 5, 4, 3 ]  | A011696
-    x^8 + x^4 + x^3 + x^2 + 1             | [ 8, 4, 3, 2 ]        | A011697
-    x^8 + x^6 + x^5 + x^4 + x^2 + x^1 + 1 | [ 8, 6, 5, 4, 2, 1 ]  | A011698
-    x^8 + x^7 + x^5 + x^1 + 1             | [ 8, 7, 5, 1 ]        | A011699
-    x^8 + x^7 + x^3 + x^1 + 1             | [ 8, 7, 3, 1 ]        | A011700
-    x^8 + x^5 + x^4 + x^3 + x^2 + x^1 + 1 | [ 8, 5, 4, 3, 2, 1 ]  | A011701
-    x^8 + x^7 + x^5 + x^4 + x^3 + x^2 + 1 | [ 8, 7, 5, 4, 3, 2 ]  | A011702
-    x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1 | [ 8, 7, 6, 4, 3, 2 ]  | A011703
-    x^8 + x^6 + x^3 + x^2 + 1             | [ 8, 6, 3, 2 ]        | A011704
-    x^8 + x^7 + x^3 + x^2 + 1             | [ 8, 7, 3, 2 ]        | A011705
-    x^8 + x^6 + x^5 + x^2 + 1             | [ 8, 6, 5, 2 ]        | A011706
-    x^8 + x^7 + x^6 + x^4 + x^2 + x^1 + 1 | [ 8, 7, 6, 4, 2, 1 ]  | A011707
-    x^8 + x^7 + x^6 + x^3 + x^2 + x^1 + 1 | [ 8, 7, 6, 3, 2, 1 ]  | A011708
-    x^8 + x^7 + x^2 + x^1 + 1             | [ 8, 7, 2, 1 ]        | A011709
-    x^8 + x^7 + x^6 + x^1 + 1             | [ 8, 7, 6, 1 ]        | A011710
-    x^8 + x^7 + x^6 + x^5 + x^2 + x^1 + 1 | [ 8, 7, 6, 5, 2, 1 ]  | A011711
-    x^8 + x^7 + x^5 + x^4 + 1             | [ 8, 7, 5, 4 ]        | A011712
-    x^8 + x^6 + x^5 + x^1 + 1             | [ 8, 6, 5, 1 ]        | A011713
-    x^8 + x^4 + x^3 + x^1 + 1             | [ 8, 4, 3, 1 ]        | A011714
-    x^8 + x^6 + x^5 + x^4 + 1             | [ 8, 6, 5, 4 ]        | A011715
-    x^8 + x^7 + x^6 + x^5 + x^4 + x^1 + 1 | [ 8, 7, 6, 5, 4, 1 ]  | A011716
-    x^8 + x^5 + x^3 + x^2 + 1             | [ 8, 5, 3, 2 ]        | A011717
-    x^8 + x^6 + x^5 + x^4 + x^3 + x^1 + 1 | [ 8, 6, 5, 4, 3, 1 ]  | A011718
-    x^8 + x^5 + x^3 + x^1 + 1             | [ 8, 5, 3, 1 ]        | A011719
-    x^8 + x^7 + x^4 + x^3 + x^2 + x^1 + 1 | [ 8, 7, 4, 3, 2, 1 ]  | A011720
-    x^8 + x^6 + x^5 + x^3 + 1             | [ 8, 6, 5, 3 ]        | A011721
-    x^9 + x^4 + 1                         | [ 9, 4 ]              | A011722
-    x^10 + x^3 + 1                        | [ 10, 3 ]             | A011723
-    x^11 + x^2 + 1                        | [ 11, 2 ]             | A011724
-    x^12 + x^7 + x^4 + x^3 + 1            | [ 12, 7, 4, 3 ]       | A011725
-    x^13 + x^4 + x^3 + x^1 + 1            | [ 13, 4, 3, 1 ]       | A011726
-    x^14 + x^12 + x^11 + x^1 + 1          | [ 14, 12, 11, 1 ]     | A011727
-    x^15 + x^1 + 1                        | [ 15, 1 ]             | A011728
-    x^16 + x^5 + x^3 + x^2 + 1            | [ 16, 5, 3, 2 ]       | A011729
-    x^17 + x^3 + 1                        | [ 17, 3 ]             | A011730
-    x^18 + x^7 + 1                        | [ 18, 7 ]             | A011731
-    x^19 + x^6 + x^5 + x^1 + 1            | [ 19, 6, 5, 1 ]       | A011732
-    x^20 + x^3 + 1                        | [ 20, 3 ]             | A011733
-    x^21 + x^2 + 1                        | [ 21, 2 ]             | A011734
-    x^22 + x^1 + 1                        | [ 22, 1 ]             | A011735
-    x^23 + x^5 + 1                        | [ 23, 5 ]             | A011736
-    x^24 + x^4 + x^3 + x^1 + 1            | [ 24, 4, 3, 1 ]       | A011737
-    x^25 + x^3 + 1                        | [ 25, 3 ]             | A011738
-    x^26 + x^8 + x^7 + x^1 + 1            | [ 26, 8, 7, 1 ]       | A011739
-    x^27 + x^8 + x^7 + x^1 + 1            | [ 27, 8, 7, 1 ]       | A011740
-    x^28 + x^3 + 1                        | [ 28, 3 ]             | A011741
-    x^29 + x^2 + 1                        | [ 29, 2 ]             | A011742
-    x^30 + x^16 + x^15 + x^1 + 1          | [ 30, 16, 15, 1 ]     | A011743
-    x^31 + x^3 + 1                        | [ 31, 3 ]             | A011744
-    x^32 + x^28 + x^27 + x^1 + 1          | [ 32, 28, 27, 1 ]     | A011745
+    Polynomial                                    | Taps                  | OEIS
+    ----------------------------------------------+-----------------------+---------
+    x**2 + x**1 + 1                               | [ 2, 1 ]              | A011655
+    x**3 + x**2 + 1                               | [ 3, 2 ]              | A011656
+    x**3 + x**1 + 1                               | [ 3, 1 ]              | A011657
+    x**4 + x**3 + x**2 + x**1 + 1                 | [ 4, 3, 2, 1 ]        | A011658
+    x**4 + x**1 + 1                               | [ 4, 1 ]              | A011659
+    x**5 + x**4 + x**2 + x**1 + 1                 | [ 5, 4, 2, 1 ]        | A011660
+    x**5 + x**3 + x**2 + x**1 + 1                 | [ 5, 3, 2, 1 ]        | A011661
+    x**5 + x**2 + 1                               | [ 5, 2 ]              | A011662
+    x**5 + x**4 + x**3 + x**1 + 1                 | [ 5, 4, 3, 1 ]        | A011663
+    x**5 + x**3 + 1                               | [ 5, 3 ]              | A011664
+    x**5 + x**4 + x**3 + x**2 + 1                 | [ 5, 4, 3, 2 ]        | A011665
+    x**6 + x**5 + x**4 + x**1 + 1                 | [ 6, 5, 4, 1 ]        | A011666
+    x**6 + x**5 + x**3 + x**2 + 1                 | [ 6, 5, 3, 2 ]        | A011667
+    x**6 + x**5 + x**2 + x**1 + 1                 | [ 6, 5, 2, 1 ]        | A011668
+    x**6 + x**1 + 1                               | [ 6, 1 ]              | A011669
+    x**6 + x**4 + x**3 + x**1 + 1                 | [ 6, 4, 3, 1 ]        | A011670
+    x**6 + x**5 + x**4 + x**2 + 1                 | [ 6, 5, 4, 2 ]        | A011671
+    x**6 + x**3 + 1                               | [ 6, 3 ]              | A011672
+    x**6 + x**5 + 1                               | [ 6, 5 ]              | A011673
+    x**7 + x**6 + x**5 + x**4 + x**3 + x**2 + 1   | [ 7, 6, 5, 4, 3, 2 ]  | A011674
+    x**7 + x**4 + 1                               | [ 7, 4 ]              | A011675
+    x**7 + x**6 + x**4 + x**2 + 1                 | [ 7, 6, 4, 2 ]        | A011676
+    x**7 + x**5 + x**2 + x**1 + 1                 | [ 7, 5, 2, 1 ]        | A011677
+    x**7 + x**5 + x**3 + x**1 + 1                 | [ 7, 5, 3, 1 ]        | A011678
+    x**7 + x**6 + x**4 + x**1 + 1                 | [ 7, 6, 4, 1 ]        | A011679
+    x**7 + x**6 + x**5 + x**4 + x**2 + x**1 + 1   | [ 7, 6, 5, 4, 2, 1 ]  | A011680
+    x**7 + x**6 + x**5 + x**3 + x**2 + x**1 + 1   | [ 7, 6, 5, 3, 2, 1 ]  | A011681
+    x**7 + x**1 + 1                               | [ 7, 1 ]              | A011682
+    x**7 + x**5 + x**4 + x**3 + x**2 + x**1 + 1   | [ 7, 5, 4, 3, 2, 1 ]  | A011683
+    x**7 + x**4 + x**3 + x**2 + 1                 | [ 7, 4, 3, 2 ]        | A011684
+    x**7 + x**6 + x**3 + x**1 + 1                 | [ 7, 6, 3, 1 ]        | A011685
+    x**7 + x**6 + 1                               | [ 7, 6 ]              | A011686
+    x**7 + x**6 + x**5 + x**4 + 1                 | [ 7, 6, 5, 4 ]        | A011687
+    x**7 + x**5 + x**4 + x**3 + 1                 | [ 7, 5, 4, 3 ]        | A011688
+    x**7 + x**3 + x**2 + x**1 + 1                 | [ 7, 3, 2, 1 ]        | A011689
+    x**7 + x**3 + 1                               | [ 7, 3 ]              | A011690
+    x**7 + x**6 + x**5 + x**2 + 1                 | [ 7, 6, 5, 2 ]        | A011691
+    x**8 + x**6 + x**4 + x**3 + x**2 + x**1 + 1   | [ 8, 6, 4, 3, 2, 1 ]  | A011692
+    x**8 + x**5 + x**4 + x**3 + 1                 | [ 8, 5, 4, 3 ]        | A011693
+    x**8 + x**7 + x**5 + x**3 + 1                 | [ 8, 7, 5, 3 ]        | A011694
+    x**8 + x**7 + x**6 + x**5 + x**4 + x**2 + 1   | [ 8, 7, 6, 5, 4, 2 ]  | A011695
+    x**8 + x**7 + x**6 + x**5 + x**4 + x**3 + 1   | [ 8, 7, 6, 5, 4, 3 ]  | A011696
+    x**8 + x**4 + x**3 + x**2 + 1                 | [ 8, 4, 3, 2 ]        | A011697
+    x**8 + x**6 + x**5 + x**4 + x**2 + x**1 + 1   | [ 8, 6, 5, 4, 2, 1 ]  | A011698
+    x**8 + x**7 + x**5 + x**1 + 1                 | [ 8, 7, 5, 1 ]        | A011699
+    x**8 + x**7 + x**3 + x**1 + 1                 | [ 8, 7, 3, 1 ]        | A011700
+    x**8 + x**5 + x**4 + x**3 + x**2 + x**1 + 1   | [ 8, 5, 4, 3, 2, 1 ]  | A011701
+    x**8 + x**7 + x**5 + x**4 + x**3 + x**2 + 1   | [ 8, 7, 5, 4, 3, 2 ]  | A011702
+    x**8 + x**7 + x**6 + x**4 + x**3 + x**2 + 1   | [ 8, 7, 6, 4, 3, 2 ]  | A011703
+    x**8 + x**6 + x**3 + x**2 + 1                 | [ 8, 6, 3, 2 ]        | A011704
+    x**8 + x**7 + x**3 + x**2 + 1                 | [ 8, 7, 3, 2 ]        | A011705
+    x**8 + x**6 + x**5 + x**2 + 1                 | [ 8, 6, 5, 2 ]        | A011706
+    x**8 + x**7 + x**6 + x**4 + x**2 + x**1 + 1   | [ 8, 7, 6, 4, 2, 1 ]  | A011707
+    x**8 + x**7 + x**6 + x**3 + x**2 + x**1 + 1   | [ 8, 7, 6, 3, 2, 1 ]  | A011708
+    x**8 + x**7 + x**2 + x**1 + 1                 | [ 8, 7, 2, 1 ]        | A011709
+    x**8 + x**7 + x**6 + x**1 + 1                 | [ 8, 7, 6, 1 ]        | A011710
+    x**8 + x**7 + x**6 + x**5 + x**2 + x**1 + 1   | [ 8, 7, 6, 5, 2, 1 ]  | A011711
+    x**8 + x**7 + x**5 + x**4 + 1                 | [ 8, 7, 5, 4 ]        | A011712
+    x**8 + x**6 + x**5 + x**1 + 1                 | [ 8, 6, 5, 1 ]        | A011713
+    x**8 + x**4 + x**3 + x**1 + 1                 | [ 8, 4, 3, 1 ]        | A011714
+    x**8 + x**6 + x**5 + x**4 + 1                 | [ 8, 6, 5, 4 ]        | A011715
+    x**8 + x**7 + x**6 + x**5 + x**4 + x**1 + 1   | [ 8, 7, 6, 5, 4, 1 ]  | A011716
+    x**8 + x**5 + x**3 + x**2 + 1                 | [ 8, 5, 3, 2 ]        | A011717
+    x**8 + x**6 + x**5 + x**4 + x**3 + x**1 + 1   | [ 8, 6, 5, 4, 3, 1 ]  | A011718
+    x**8 + x**5 + x**3 + x**1 + 1                 | [ 8, 5, 3, 1 ]        | A011719
+    x**8 + x**7 + x**4 + x**3 + x**2 + x**1 + 1   | [ 8, 7, 4, 3, 2, 1 ]  | A011720
+    x**8 + x**6 + x**5 + x**3 + 1                 | [ 8, 6, 5, 3 ]        | A011721
+    x**9 + x**4 + 1                               | [ 9, 4 ]              | A011722
+    x**10 + x**3 + 1                              | [ 10, 3 ]             | A011723
+    x**11 + x**2 + 1                              | [ 11, 2 ]             | A011724
+    x**12 + x**7 + x**4 + x**3 + 1                | [ 12, 7, 4, 3 ]       | A011725
+    x**13 + x**4 + x**3 + x**1 + 1                | [ 13, 4, 3, 1 ]       | A011726
+    x**14 + x**12 + x**11 + x**1 + 1              | [ 14, 12, 11, 1 ]     | A011727
+    x**15 + x**1 + 1                              | [ 15, 1 ]             | A011728
+    x**16 + x**5 + x**3 + x**2 + 1                | [ 16, 5, 3, 2 ]       | A011729
+    x**17 + x**3 + 1                              | [ 17, 3 ]             | A011730
+    x**18 + x**7 + 1                              | [ 18, 7 ]             | A011731
+    x**19 + x**6 + x**5 + x**1 + 1                | [ 19, 6, 5, 1 ]       | A011732
+    x**20 + x**3 + 1                              | [ 20, 3 ]             | A011733
+    x**21 + x**2 + 1                              | [ 21, 2 ]             | A011734
+    x**22 + x**1 + 1                              | [ 22, 1 ]             | A011735
+    x**23 + x**5 + 1                              | [ 23, 5 ]             | A011736
+    x**24 + x**4 + x**3 + x**1 + 1                | [ 24, 4, 3, 1 ]       | A011737
+    x**25 + x**3 + 1                              | [ 25, 3 ]             | A011738
+    x**26 + x**8 + x**7 + x**1 + 1                | [ 26, 8, 7, 1 ]       | A011739
+    x**27 + x**8 + x**7 + x**1 + 1                | [ 27, 8, 7, 1 ]       | A011740
+    x**28 + x**3 + 1                              | [ 28, 3 ]             | A011741
+    x**29 + x**2 + 1                              | [ 29, 2 ]             | A011742
+    x**30 + x**16 + x**15 + x**1 + 1              | [ 30, 16, 15, 1 ]     | A011743
+    x**31 + x**3 + 1                              | [ 31, 3 ]             | A011744
+    x**32 + x**28 + x**27 + x**1 + 1              | [ 32, 28, 27, 1 ]     | A011745
 
 =cut
 
@@ -421,11 +473,11 @@ sub oeis_anum {
 
 A pseudorandom binary sequence (PRBS) is the sequence of N unique bits, in this case generated from an LFSR.  Once it generates the N bits, it loops around and repeats that seqence.  While still within the unique N bits, the sequence of N bits shares some properties with a truly random sequence of the same length.  The benefit of this sequence is that, while it shares statistical properites with a random sequence, it is actually deterministic, so is often used to deterministically test hardware or software that requires a data stream that needs pseudorandom properties.
 
-In an LFSR, the polynomial description (like C<x^3 + x^2 + 1>) indicates which bits are "tapped" to create the feedback bit: the taps are the powers of x in the polynomial (3 and 2).  The C<1> is really the C<x^0> term, and isn't a "tap", in the sense that it isn't used for generating the feedback; instead, that is the location where the new feedback bit comes back into the shift register; the C<1> is in all characteristic polynomials, and is implied when creating a new instance of B<Math::PRBS>.
+In an LFSR, the polynomial description (like C<x**3 + x**2 + 1>) indicates which bits are "tapped" to create the feedback bit: the taps are the powers of x in the polynomial (3 and 2).  The C<1> is really the C<x**0> term, and isn't a "tap", in the sense that it isn't used for generating the feedback; instead, that is the location where the new feedback bit comes back into the shift register; the C<1> is in all characteristic polynomials, and is implied when creating a new instance of B<Math::PRBS>.
 
-If the largest power of the polynomial is C<k>, there are C<k+1> bits in the register (one for each of the powers C<k..1> and one for the C<x^0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and that sequence is called a maximum length sequence  or m-sequence; there can be more than one m-sequence for a given C<k>.  One useful feature of an m-sequence is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits (*), except for C<k> zeroes in a row.  For example,
+If the largest power of the polynomial is C<k>, there are C<k+1> bits in the register (one for each of the powers C<k..1> and one for the C<x**0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and that sequence is called a maximum length sequence  or m-sequence; there can be more than one m-sequence for a given C<k>.  One useful feature of an m-sequence is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits (*), except for C<k> zeroes in a row.  For example,
 
-    # x^3 + x^2 + 1 = "1011100"
+    # x**3 + x**2 + 1 = "1011100"
     "_101_1100 " -> 101
     "1_011_100 " -> 011
     "10_111_00 " -> 111

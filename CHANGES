@@ -1,16 +1,21 @@
 Revision history for Perl module Math::PRBS.
 
 v0.001_002
-    - add ->tell_i()
     - add ->description(): lists the polynomial string
+    - add ->taps(): returns a new array-ref containing the LFSR taps
     - add ->oeis_anum(): lists OEIS# for known taps, or undef if unknown
-    TODO
-    - INFO:
-    - ->period([force]): if period defined, return period; if undefined and
-        force==TRUE, then iterate thru all
-    - ->tell_state(): tells the internal state (the value of the shift
+    - add ->period([force]): if period defined, return period;
+        if undefined and force, then iterate thru all up to 2**23-1
+        if forceBig, iterate thru all
+    - add ->tell_i()
+    - add ->tell_state(): tells the internal state (the value of the shift
         register)
-    - additional ITERATION methods: ie, from OPTIONAL section of NumSeq, or
+    TODO
+    - either as part of generate_all(), or as separate, higher-priority
+      task, fix test suite so it isn't running the ->period() method
+      8_421_882 times during the test suite!  I guess generate_all
+      would be the place to do it, and then replace the next().*while and
+      next().*until with the generate_all()
     - ->generate_all([limit]): generates the whole list, from the
         beginning: in SCALAR context, returns a string, in list context,
         returns a list/array.  If limit is non-zero, will stop after either
@@ -19,8 +24,7 @@ v0.001_002
     - ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
         tell_i or 0 to $i
     - ->ith($i): alias for seek_to_i()
-    - ->seek_to_state($state): ->rewind(), then loop until ->tell_state()
-        is equal to $state
+    - ->seek_to_state($state): loop until ->tell_state() equals $state
 
 v0.001_001
     - Initial experiments
