@@ -10,17 +10,16 @@ v0.001_002
     - add ->tell_i()
     - add ->tell_state(): tells the internal state (the value of the shift
         register)
+    - add ->generate_all() and ->continue_all(): generates the whole list
+        or continues the list from where you left off
+        TODO = add wantarray ? list : string
     TODO
-    - either as part of generate_all(), or as separate, higher-priority
-      task, fix test suite so it isn't running the ->period() method
-      8_421_882 times during the test suite!  I guess generate_all
-      would be the place to do it, and then replace the next().*while and
-      next().*until with the generate_all()
-    - ->generate_all([limit]): generates the whole list, from the
-        beginning: in SCALAR context, returns a string, in list context,
-        returns a list/array.  If limit is non-zero, will stop after either
-        {period} is reached, or stop at {limit} elements and append '...';
-        if limit is undef or 0, default to 2**15-1 elements (ie, PRBS15).
+    - COVERAGE:
+        - line 215: $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};
+            => 0xx covered, 10x covered, 110 111 not covered
+        - line 219: last if defined $self->{period} && $self->{period} < $self->{i};
+            => 0x overed, 10 covered, 11 not covered
+            => I don't know that I actually need 219... it should be covered by 221
     - ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
         tell_i or 0 to $i
     - ->ith($i): alias for seek_to_i()

@@ -23,7 +23,7 @@ is( $seq->tell_i, '2',                                          'PRBS7: ->tell_i
 is( $seq->tell_state, '2',                                      'PRBS7: ->tell_state    = internal LFSR state' );
 ok( !defined($seq->period()),                                   'PRBS7: ->period        = period should not be defined yet' );
 is_deeply( [$seq->next()], ['2','0'],                           'PRBS7: ->next: list    = i, v[i]    = third' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->tell_i, '127',                                        'PRBS7: ->tell_i        = end of sequence, because looped until period defined' );
 is( $seq->tell_state, '64',                                     'PRBS7: ->tell_state    = internal LFSR state' );
 ok( defined($seq->period()),                                    'PRBS7: ->period        = defined' );
@@ -34,15 +34,18 @@ is( $seq->tell_state, '64',                                     'PRBS7: ->tell_s
 ok( defined($seq->period()),                                    'PRBS7: ->period        = still defined' );
 is( $seq->period(), '127',                                      'PRBS7: ->period        = still length of sequence' );
 my $exp = '1000001100001010001111001000101100111010100111110100001110001001001101101011011110110001101001011101110011001010101111111000000';
-my $got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+my $got = join '', $seq->generate_all();
 is( $got, $exp,                                                 'PRBS7: ->all: scalar   = full sequence, as string');
+$seq->next() for (1..100);              # we are beyond the end
+$got = join '', $seq->continue_all();   # continue all should mod the i, and then continue to the end
+is( $got, substr($exp,100),                                     'PRBS7: ->all: scalar   = partial sequence, as string');
 
 $seq = Math::PRBS->new( prbs => 15 );
 is( $seq->description, 'PRBS from polynomial x**15 + x**14 + 1',  'PRBS15: ->description');
 is( $seq->oeis_anum, undef,                                     'PRBS15: ->oeis_anum');
 is_deeply( $seq->taps(), [15,14],                               'PRBS15: ->taps         = x**15 + x**14 + 1' );
 is( $seq->tell_state, '16384',                                  'PRBS15: ->tell_state   = internal LFSR state' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**15-1,                                    'PRBS15: ->period       = length of sequence' );
 
 $t = time();
@@ -52,8 +55,12 @@ is( $seq->description, 'PRBS from polynomial x**23 + x**18 + 1',  'PRBS23: ->des
 is( $seq->oeis_anum, undef,                                     'PRBS23: ->oeis_anum');
 is_deeply( $seq->taps(), [23,18],                               'PRBS23: ->taps         = x**23 + x**18 + 1' );
 is( $seq->tell_state, '4194304',                                'PRBS23: ->tell_state   = internal LFSR state' );
-$seq->next()    until defined $seq->period();
-is( $seq->period(), 2**23-1,                                    'PRBS23: ->period       = length of sequence' );
+$seq->continue_all();   # default limit: 65535 = not long enough
+is( $seq->period(), undef,                                      'PRBS23: ->continue_all, ->period = should hit limit => 65535' );
+is( $seq->tell_i, '65535',                                      'PRBS23: ->tell_i       = hit 65535 limit' );
+$seq->continue_all( limit => 2**23 );   # $seq->next()    until defined $seq->period();
+is( $seq->period(), 2**23-1,                                    'PRBS23: ->continue_all(limit = 2**23), ->period = should find actual length of sequence' );
+is( $seq->tell_i, 2**23-1,                                      'PRBS23: ->tell_i       = found the whole sequence' );
 diag( "PRBS23: Elapsed time: ", $dt=time()-$t, "sec");
 
 $seq = Math::PRBS->new( prbs => 31 );
@@ -74,22 +81,22 @@ $seq = Math::PRBS->new( taps => [3,2] );
 is( $seq->description, 'PRBS from polynomial x**3 + x**2 + 1',    'taps => [3,2] ->description');
 is( $seq->oeis_anum, 'A011656',                                 'taps => [3,2] ->oeis_anum');
 is_deeply( $seq->taps(), [3,2],                                 'taps => [3,2] ->taps      = x**3 + x**2 + 1' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'taps => [3,2] ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
-$got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+$got = join '', $seq->generate_all();
 is( $got, $exp,                                                 'taps => [3,2] ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( taps => [3,1] );
 is( $seq->description, 'PRBS from polynomial x**3 + x**1 + 1',    'taps => [3,1] ->description');
 is( $seq->oeis_anum, 'A011657',                                 'taps => [3,1] ->oeis_anum');
 is_deeply( $seq->taps(), [3,1],                                 'taps => [3,1] ->taps      = x**3 + x**1 + 1' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'taps => [3,1] ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
-$got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+$got = join '', $seq->generate_all();
 is( $got, $exp,                                 'taps => [3,1] ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( taps => [3,2,1] );
@@ -102,27 +109,27 @@ is( $seq->period('force'), 4,                                   'taps => [3,2,1]
 is( $seq->period(), 4,                                          'taps => [3,2,1] ->period: it has now been computed, so dont need "force" anymore' );
 $seq->rewind();
 $exp = '1100';
-$got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+$got = join '', $seq->generate_all();
 is( $got, $exp,                                                 'taps => [3,2,1] ->all     = full sequence, as string');
 
 $seq = Math::PRBS->new( poly => '110' );
 is( $seq->description, 'PRBS from polynomial x**3 + x**2 + 1',    'poly => "110" ->description');
 is_deeply( $seq->taps(), [3,2],                                 'poly => "110" ->taps      = x**3 + x**2 + 1' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'poly => "110" ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
-$got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+$got = join '', $seq->generate_all();
 is( $got, $exp,                                                 'poly => "110" ->all       = full sequence, as string');
 
 $seq = Math::PRBS->new( poly => '101' );
 is( $seq->description, 'PRBS from polynomial x**3 + x**1 + 1',    'poly => "101" ->description');
 is_deeply( $seq->taps(), [3,1],                                 'poly => "101" ->taps      = x**3 + x**1 + 1' );
-$seq->next()    until defined $seq->period();
+$seq->continue_all();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'poly => "101" ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
-$got = ''; $got .= $seq->next() while !defined($seq->period()) || ($seq->tell_i < $seq->period());      # replace with $got = $seq->all()
+$got = join '', $seq->generate_all();
 is( $got, $exp,                                                 'poly => "101" ->all       = full sequence, as string' );
 
 $t = time();
@@ -139,28 +146,28 @@ is( $seq->period('forceBig'), 16_766_977,                       'taps => [24,5]:
 diag( "taps => [24,5]: Elapsed time: ", $dt=time()-$t, "sec");
 
 # test for proper 'die'
-eval { $seq = Math::PRBS->new( unknown => 1 ); }; chomp($@);
-ok( $@ ,                                                        "new(unknown=>1) should fail due to invalid arguments: '$@'" );
-
 eval { $seq = Math::PRBS->new( 15 ); }; chomp($@);
-ok( $@ ,                                                        "new(15) should fail due to invalid arguments: '$@'" );
+ok( $@ ,                                                        "new(15) should fail due to unknown arguments" );
     # would need { no warnings qw(misc uninitialized); } in ->new() to prevent the warnings from printing
     #   misc: 'odd number of elements in hash assignment'
     #   uninitialized: 'use of uninitialized value $pairs{"15"} in join or string'
 
+eval { $seq = Math::PRBS->new( unknown => 1 ); }; chomp($@);
+ok( $@ ,                                                        "new(unknown=>1) should fail due to unknown arguments" );
+
 eval { $seq = Math::PRBS->new( prbs => 3 ); }; chomp($@);
-ok( $@ ,                                                        "new(prbs=>3) should fail due to invalid standard prbs: '$@'" );
+ok( $@ ,                                                        "new(prbs=>3) should fail due to non-standard prbs" );
 
 eval { $seq = Math::PRBS->new( taps => 3 ); }; chomp($@);
-ok( $@ ,                                                        "new(taps=>3) should fail due to taps needing array ref: '$@'" );
+ok( $@ ,                                                        "new(taps=>3) should fail due to 'taps' needing array ref" );
 
 eval { $seq = Math::PRBS->new( taps => [] ); }; chomp($@);
-ok( $@ ,                                                        "new(taps=>[]) should fail due to taps needing at least one tap: '$@'" );
+ok( $@ ,                                                        "new(taps=>[]) should fail due to 'taps' needing at least one tap" );
 
 eval { $seq = Math::PRBS->new( poly => 'xyz' ); }; chomp($@);
-ok( $@ ,                                                        "new(taps=>'xyz') should fail due to poly needing binary string: '$@'" );
+ok( $@ ,                                                        "new(poly=>'xyz') should fail due to 'poly' needing binary string" );
 
 eval { $seq = Math::PRBS->new( poly => '000' ); }; chomp($@);
-ok( $@ ,                                                        "new(taps=>'000') should fail due to poly needing at least one tap: '$@'" );
+ok( $@ ,                                                        "new(taps=>'000') should fail due to 'poly' needing at least one tap" );
 
 done_testing();

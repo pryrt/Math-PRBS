@@ -195,6 +195,40 @@ sub tell_state {
     return $_[0]->{lfsr};
 }
 
+=item C<@all = $seq-E<gt>generate_all( )>
+
+=item C<@all = $seq-E<gt>generate_all( I<limit =E<gt> $max_i> )>
+
+Returns the whole sequence from the beginning, up to the end of the sequence.  If the sequence is longer than the default limit of 65535, or the limit given by C<$max_i> if the optional C<limit =E<gt> $max_i> is provided, then it will stop before the end of the sequence.
+
+=item C<@all = $seq-E<gt>continue_all( )>
+
+=item C<@all = $seq-E<gt>continue_all( I<limit =E<gt> $max_i> )>
+
+Returns the remaining sequence (from whatever state the list is currently at), up to the end of the sequence.  The limits work just as with I<generate_all()>.
+
+=cut
+
+sub continue_all {
+    my ($self, %opts) = @_;
+    my $limit = exists $opts{limit} ? $opts{limit} : 65535;
+    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};
+    $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
+    my @ret = ();
+    while( $self->{i} < $limit ) {
+        last if defined $self->{period} && $self->{period} < $self->{i};
+        push @ret, scalar $self->next();    # need to force the scalar version to not push (i,value)
+        $limit = $self->{period} if defined $self->{period} && $self->{period} < $limit;    # pick PERIOD if PERIOD smaller than LIMIT
+    }
+    return @ret;
+}
+
+sub generate_all {
+    my ($self, %opts) = @_;
+    $opts{rewind} = 1;          # override existing rewind value
+    return continue_all($self, %opts);
+}
+
 =back
 
 =head2 Information
