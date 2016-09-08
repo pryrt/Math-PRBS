@@ -20,6 +20,8 @@ v0.001_002
         tell_i or 0 to $i
     - ->ith($i): alias for seek_to_i()
     - ->seek_to_state($state): loop until ->tell_state() equals $state
+    TODO
+    - look into memory issues: dmake test uses about 0.5GB (and cover maxes memory)
 
 v0.001_001
     - Initial experiments

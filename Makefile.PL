@@ -74,18 +74,18 @@ use 5.006;
             'Config' => 0,
         };
     }
-    if(1) {
-        $mm_args{postamble} = {
-            blah => 0,
-            pcj => 1975,
-        }
-    }
+    #if(1) {
+    #    $mm_args{postamble} = {
+    #        blah => 0,
+    #        pcj => 1975,
+    #    }
+    #}
 }
 
 sub MY::postamble {
     my (undef,%h) = @_;
-    require Data::Dumper;
-    print STDERR Data::Dumper->Dump([\%h], [qw(mm_args{postamble})]);
+    #require Data::Dumper;
+    #print STDERR Data::Dumper->Dump([\%h], [qw(mm_args{postamble})]);
     return <<'POSTAMBLE';
 TEST_D = $(ABSPERLRUN) -MExtUtils::Command -e test_d --
 
@@ -93,8 +93,8 @@ pcj_clean :: realclean
 	$(NOECHO) ( $(TEST_F) pod.html && $(RM_F) pod.html  ) || $(ECHO) pcj_clean: skip "rm -f pod.html"
 	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) pcj_clean: skip "rm -rf cover_db"
 
-pcj_cover :: lib/Math/PRBS.pm test
-	$(NOECHO) cover -test -report html_basic
+testcover :: lib/Math/PRBS.pm test
+	$(NOECHO) cover -test -report html
 
 pod.html :: lib/Math/PRBS.pm
 	$(NOECHO) $(TEST_F) pod.css && pod2html --css=pod.css --outfile=pod.html lib/Math/PRBS.pm
