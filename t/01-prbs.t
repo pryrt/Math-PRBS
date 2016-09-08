@@ -10,8 +10,9 @@ use Math::PRBS;
 
 my $t = time();
 my $dt;
+my ($seq, $exp, $got, @g);
 
-my $seq = Math::PRBS->new( prbs => 7 );
+$seq = Math::PRBS->new( prbs => 7 );
 is( ref($seq), 'Math::PRBS',                                    'PRBS7: Create' );
 is( $seq->description, 'PRBS from polynomial x**7 + x**6 + 1',    'PRBS7: ->description');
 is( undef, undef,                                               'PRBS7: ->oeis_anum');
@@ -23,7 +24,7 @@ is( $seq->tell_i, '2',                                          'PRBS7: ->tell_i
 is( $seq->tell_state, '2',                                      'PRBS7: ->tell_state    = internal LFSR state' );
 ok( !defined($seq->period()),                                   'PRBS7: ->period        = period should not be defined yet' );
 is_deeply( [$seq->next()], ['2','0'],                           'PRBS7: ->next: list    = i, v[i]    = third' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->tell_i, '127',                                        'PRBS7: ->tell_i        = end of sequence, because looped until period defined' );
 is( $seq->tell_state, '64',                                     'PRBS7: ->tell_state    = internal LFSR state' );
 ok( defined($seq->period()),                                    'PRBS7: ->period        = defined' );
@@ -33,25 +34,29 @@ is( $seq->tell_i, '0',                                          'PRBS7: ->rewind
 is( $seq->tell_state, '64',                                     'PRBS7: ->tell_state    = internal LFSR state' );
 ok( defined($seq->period()),                                    'PRBS7: ->period        = still defined' );
 is( $seq->period(), '127',                                      'PRBS7: ->period        = still length of sequence' );
-my $exp = '1000001100001010001111001000101100111010100111110100001110001001001101101011011110110001101001011101110011001010101111111000000';
-my $got = join '', $seq->generate_all();
+$exp = '1000001100001010001111001000101100111010100111110100001110001001001101101011011110110001101001011101110011001010101111111000000';
+########123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1234567
+$got = $seq->generate_all();
 is( $got, $exp,                                                 'PRBS7: ->generate_all(): scalar            = full sequence, as string');
-$seq->next() for (1..100);                                      # move beyond the end
-$got = join '', $seq->continue_all();                           # continue all should mod the i, and then continue to the end
-is( $got, substr($exp,100),                                     'PRBS7: ->continue_all(): scalar            = after skipping first 100');
-$seq->next() for (1..111);                                      # move beyond the end
-$got = join '', $seq->continue_all(rewind => 0);                # continue all should mod the i, and then continue to the end
-is( $got, substr($exp,111),                                     'PRBS7: ->continue_all(rewind => 0): scalar = after skipping first 111');
-$seq->next() for (1..107);                                      # move beyond the end
-$got = join '', $seq->continue_all(rewind => 1);                # continue all should mod the i, and then continue to the end
-is( $got, $exp,                                                 'PRBS7: ->continue_all(rewind => 1): scalar = after skipping first 107, rewind and grab all');
+$got = $seq->generate(90);                                      # generate the next 90 as string
+is( $got, substr($exp,0,90),                                    'PRBS7: ->generate(): scalar                = generate next 90 as scalar');
+@g = $seq->generate(10);                                        # generate the next 10 as array
+is_deeply( [@g], [1,0,0,1,0,1,1,1,0,1],                         'PRBS7: ->generate(): array                 = generate next 10 as array');
+$got = join '', $seq->generate_to_end();                        # continue all should mod the i, and then continue to the end
+is( $got, substr($exp,100),                                     'PRBS7: ->generate_to_end(): scalar            = after skipping first 100');
+$seq->generate(111);                                            # move 111 beyond end of sequence
+@g = $seq->generate_to_end(rewind => 0);                        # continue all should mod the i, and then continue to the end
+is_deeply( [@g], [0,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0],             'PRBS7: ->generate_to_end(rewind => 0): array = after skipping first 111');
+$seq->generate(107);                                            # move 107 beyond end of sequence
+$got = join '', $seq->generate_to_end(rewind => 1);             # continue all should mod the i, and then continue to the end
+is( $got, $exp,                                                 'PRBS7: ->generate_to_end(rewind => 1): scalar = after skipping first 107, rewind and grab all');
 
 $seq = Math::PRBS->new( prbs => 15 );
 is( $seq->description, 'PRBS from polynomial x**15 + x**14 + 1',  'PRBS15: ->description');
 is( $seq->oeis_anum, undef,                                     'PRBS15: ->oeis_anum');
 is_deeply( $seq->taps(), [15,14],                               'PRBS15: ->taps         = x**15 + x**14 + 1' );
 is( $seq->tell_state, '16384',                                  'PRBS15: ->tell_state   = internal LFSR state' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**15-1,                                    'PRBS15: ->period       = length of sequence' );
 
 $t = time();
@@ -61,11 +66,11 @@ is( $seq->description, 'PRBS from polynomial x**23 + x**18 + 1',  'PRBS23: ->des
 is( $seq->oeis_anum, undef,                                     'PRBS23: ->oeis_anum');
 is_deeply( $seq->taps(), [23,18],                               'PRBS23: ->taps         = x**23 + x**18 + 1' );
 is( $seq->tell_state, '4194304',                                'PRBS23: ->tell_state   = internal LFSR state' );
-$seq->continue_all();   # default limit: 65535 = not long enough
-is( $seq->period(), undef,                                      'PRBS23: ->continue_all, ->period = should hit limit => 65535' );
+$seq->generate_to_end();   # default limit: 65535 = not long enough
+is( $seq->period(), undef,                                      'PRBS23: ->generate_to_end, ->period = should hit limit => 65535' );
 is( $seq->tell_i, '65535',                                      'PRBS23: ->tell_i       = hit 65535 limit' );
-$seq->continue_all( limit => 2**23 );   # $seq->next()    until defined $seq->period();
-is( $seq->period(), 2**23-1,                                    'PRBS23: ->continue_all(limit = 2**23), ->period = should find actual length of sequence' );
+$seq->generate_to_end( limit => 2**23 );   # $seq->next()    until defined $seq->period();
+is( $seq->period(), 2**23-1,                                    'PRBS23: ->generate_to_end(limit = 2**23), ->period = should find actual length of sequence' );
 is( $seq->tell_i, 2**23-1,                                      'PRBS23: ->tell_i       = found the whole sequence' );
 diag( "PRBS23: Elapsed time: ", $dt=time()-$t, "sec");
 
@@ -87,7 +92,7 @@ $seq = Math::PRBS->new( taps => [3,2] );
 is( $seq->description, 'PRBS from polynomial x**3 + x**2 + 1',    'taps => [3,2] ->description');
 is( $seq->oeis_anum, 'A011656',                                 'taps => [3,2] ->oeis_anum');
 is_deeply( $seq->taps(), [3,2],                                 'taps => [3,2] ->taps      = x**3 + x**2 + 1' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'taps => [3,2] ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
@@ -98,7 +103,7 @@ $seq = Math::PRBS->new( taps => [3,1] );
 is( $seq->description, 'PRBS from polynomial x**3 + x**1 + 1',    'taps => [3,1] ->description');
 is( $seq->oeis_anum, 'A011657',                                 'taps => [3,1] ->oeis_anum');
 is_deeply( $seq->taps(), [3,1],                                 'taps => [3,1] ->taps      = x**3 + x**1 + 1' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'taps => [3,1] ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
@@ -121,7 +126,7 @@ is( $got, $exp,                                                 'taps => [3,2,1]
 $seq = Math::PRBS->new( poly => '110' );
 is( $seq->description, 'PRBS from polynomial x**3 + x**2 + 1',    'poly => "110" ->description');
 is_deeply( $seq->taps(), [3,2],                                 'poly => "110" ->taps      = x**3 + x**2 + 1' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'poly => "110" ->period    = length of sequence' );
 $seq->reset();
 $exp = '1011100';
@@ -131,7 +136,7 @@ is( $got, $exp,                                                 'poly => "110" -
 $seq = Math::PRBS->new( poly => '101' );
 is( $seq->description, 'PRBS from polynomial x**3 + x**1 + 1',    'poly => "101" ->description');
 is_deeply( $seq->taps(), [3,1],                                 'poly => "101" ->taps      = x**3 + x**1 + 1' );
-$seq->continue_all();   # $seq->next()    until defined $seq->period();
+$seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**3-1,                                     'poly => "101" ->period    = length of sequence' );
 $seq->rewind();
 $exp = '1110100';
