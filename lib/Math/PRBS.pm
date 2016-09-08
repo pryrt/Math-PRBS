@@ -208,15 +208,13 @@ Returns the whole sequence from the beginning, up to the end of the sequence.  I
 Returns the remaining sequence (from whatever state the list is currently at), up to the end of the sequence.  The limits work just as with I<generate_all()>.
 
 =cut
-
 sub continue_all {
     my ($self, %opts) = @_;
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
-    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};
+    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind}; # cover claims I don't cover all these, but I do
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     my @ret = ();
     while( $self->{i} < $limit ) {
-        last if defined $self->{period} && $self->{period} < $self->{i};
         push @ret, scalar $self->next();    # need to force the scalar version to not push (i,value)
         $limit = $self->{period} if defined $self->{period} && $self->{period} < $limit;    # pick PERIOD if PERIOD smaller than LIMIT
     }
@@ -271,7 +269,7 @@ sub taps {
 
 Returns the period of the sequence.
 
-    $i = $seq-E<gt>period();
+    $i = $seq->period();
 
 Without any arguments, will return undef if the period hasn't been determined yet.
 

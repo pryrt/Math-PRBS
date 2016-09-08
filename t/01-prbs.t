@@ -35,10 +35,16 @@ ok( defined($seq->period()),                                    'PRBS7: ->period
 is( $seq->period(), '127',                                      'PRBS7: ->period        = still length of sequence' );
 my $exp = '1000001100001010001111001000101100111010100111110100001110001001001101101011011110110001101001011101110011001010101111111000000';
 my $got = join '', $seq->generate_all();
-is( $got, $exp,                                                 'PRBS7: ->all: scalar   = full sequence, as string');
-$seq->next() for (1..100);              # we are beyond the end
-$got = join '', $seq->continue_all();   # continue all should mod the i, and then continue to the end
-is( $got, substr($exp,100),                                     'PRBS7: ->all: scalar   = partial sequence, as string');
+is( $got, $exp,                                                 'PRBS7: ->generate_all(): scalar            = full sequence, as string');
+$seq->next() for (1..100);                                      # move beyond the end
+$got = join '', $seq->continue_all();                           # continue all should mod the i, and then continue to the end
+is( $got, substr($exp,100),                                     'PRBS7: ->continue_all(): scalar            = after skipping first 100');
+$seq->next() for (1..111);                                      # move beyond the end
+$got = join '', $seq->continue_all(rewind => 0);                # continue all should mod the i, and then continue to the end
+is( $got, substr($exp,111),                                     'PRBS7: ->continue_all(rewind => 0): scalar = after skipping first 111');
+$seq->next() for (1..107);                                      # move beyond the end
+$got = join '', $seq->continue_all(rewind => 1);                # continue all should mod the i, and then continue to the end
+is( $got, $exp,                                                 'PRBS7: ->continue_all(rewind => 1): scalar = after skipping first 107, rewind and grab all');
 
 $seq = Math::PRBS->new( prbs => 15 );
 is( $seq->description, 'PRBS from polynomial x**15 + x**14 + 1',  'PRBS15: ->description');
