@@ -38,8 +38,10 @@ Creates the sequence iterator C<$seq> using one of the C<key =E<gt> value> pairs
 =cut
 
 sub new {
-    my ($class, %pairs) = @_;
+    my $class = shift;
     my $self = bless { lfsr => 0, start => 0, i => 0, period => undef, taps => [] }, $class;
+    my %pairs;
+    %pairs = @_%2 ? () : @_;
 
 =over
 
@@ -87,7 +89,7 @@ C<taps> needs an array reference containing the powers in the polynomial that yo
     {
         die __PACKAGE__."::new(taps => $pairs{taps}): argument should be an array reference" unless 'ARRAY' eq ref($pairs{taps});
         $self->{taps} = [ sort {$b <=> $a} @{ $pairs{taps} } ];     # taps in descending order
-        die __PACKAGE__."::new(taps => $pairs{taps}): need at least one tap" unless @{ $pairs{taps} };
+        die __PACKAGE__."::new(taps => [@{$pairs{taps}}]): need at least one tap" unless @{ $pairs{taps} };
     }
 
 =item C<poly =E<gt> '...'>
@@ -112,7 +114,7 @@ C<poly> needs a string for the bits C<x**k> downto C<x**1>, with a 1 indicating 
         $self->{taps} = [ reverse sort {$a <=> $b} @taps ];
         die __PACKAGE__."::new(poly => '$pairs{poly}'): need at least one tap" unless @taps;
     } else {
-        die __PACKAGE__."::new(".join(',',%pairs)."): unknown arguments";
+        die __PACKAGE__."::new(".join(',',@_)."): unknown arguments";
     }
 
     $self->{lfsr} = oct('0b1' . '0'x($self->{taps}[0] - 1));
@@ -308,7 +310,7 @@ sub period {
 
     # ... loop thru all, but safely ... #
     if($force =~ /^force/i ) {  # 'force' or 'forceBig'
-        $max = 8_388_607 if (($max>8_388_607) && ($force !~ /^forceBig/i));     # don't go more than 2**23-1 unless forceBig
+        $max = 65535 if (($max>65535) && ($force !~ /^forceBig/i));     # don't go more than 65535 unless forceBig
         $self->next while $self->{i}<$max && !defined $self->{period};
     }
     return $self->{period};
