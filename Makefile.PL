@@ -93,7 +93,7 @@ pcj_clean :: realclean
 	$(NOECHO) ( $(TEST_F) pod.html && $(RM_F) pod.html  ) || $(ECHO) pcj_clean: skip "rm -f pod.html"
 	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) pcj_clean: skip "rm -rf cover_db"
 
-testcover :: lib/Math/PRBS.pm test
+testcover :: lib/Math/PRBS.pm
 	$(NOECHO) cover -test -report html
 
 pod.html :: lib/Math/PRBS.pm

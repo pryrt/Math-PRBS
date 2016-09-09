@@ -231,10 +231,10 @@ sub generate_to_end {
 
     die __PACKAGE__."::generate_to_end(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
 
-    my %opts = @_;
+    my %opts = map lc, @_;  # lowercase name,value pairs for canonical
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
-    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};         # coverage: I test the important ones
+    $self->rewind() if $self->{i} && $opts{rewind};                                         # coverage: Devel::Cover is wrong; I test 0X, 10, and 11.
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     my $ret = '';
     while( $self->{i} < $limit ) {
