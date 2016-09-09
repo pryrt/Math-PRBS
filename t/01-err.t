@@ -4,11 +4,11 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 11;
 
 use Math::PRBS;
 
-sub DEBUG { 1 };
+sub DEBUG { 0 };
 
 my $seq;
 
@@ -49,4 +49,12 @@ diag( $@ ) if DEBUG;
 
 eval { Math::PRBS->new( poly => '110' )->period(5); }; chomp($@);
 ok( $@ ,                                                        "period(5) should fail due to requiring a hash argument" );
+diag( $@ ) if DEBUG;
+
+eval { Math::PRBS->new( poly => '110' )->generate_all(5); }; chomp($@);
+ok( $@ ,                                                        "generate_all(5) should fail due to requiring a hash argument" );
+diag( $@ ) if DEBUG;
+
+eval { Math::PRBS->new( poly => '110' )->generate_to_end(5); }; chomp($@);
+ok( $@ ,                                                        "generate_to_end(5) should fail due to requiring a hash argument" );
 diag( $@ ) if DEBUG;

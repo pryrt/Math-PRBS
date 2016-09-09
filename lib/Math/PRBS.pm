@@ -227,7 +227,11 @@ Returns the remaining sequence, from whatever state the list is currently at, up
 =cut
 
 sub generate_to_end {
-    my ($self, %opts) = @_;
+    my $self = shift;
+
+    die __PACKAGE__."::generate_to_end(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+
+    my %opts = @_;
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
     $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};         # coverage: I test the important ones
@@ -241,7 +245,11 @@ sub generate_to_end {
 }
 
 sub generate_all {
-    my ($self, %opts) = @_;
+    my $self = shift;
+
+    die __PACKAGE__."::generate_all(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+
+    my %opts = @_;
     $opts{rewind} = 1;          # override existing rewind value
     return generate_to_end($self, %opts);
 }
