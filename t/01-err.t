@@ -1,5 +1,5 @@
 ########################################################################
-# Tests for error conditions which should cause
+# Tests for error conditions which should cause the module to die()
 ########################################################################
 use 5.006;
 use strict;

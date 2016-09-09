@@ -1,5 +1,8 @@
 ########################################################################
-# Verifies major functionality
+# Verifies period and generate limits
+#   uses some k=17 taps that are known to be 65535 < period < 2**17-1
+#       # [17,2]        => 114_681
+#       # [17,4,2,1]    => 122_865
 ########################################################################
 use 5.006;
 use strict;

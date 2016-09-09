@@ -98,6 +98,7 @@ testcover :: lib/Math/PRBS.pm test
 
 pod.html :: lib/Math/PRBS.pm
 	$(NOECHO) $(TEST_F) pod.css && pod2html --css=pod.css --outfile=pod.html lib/Math/PRBS.pm
+	$(NOECHO) ( $(TEST_F) pod2htmd.tmp && $(RM_F) pod2htmd.tmp ) || $(ECHO) pod.html: skip "rm -f pod2htmd.tmp"
 
 POSTAMBLE
 }
