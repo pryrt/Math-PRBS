@@ -232,12 +232,12 @@ sub generate_to_end {
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
     $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};         # coverage: I test the important ones
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
-    my @ret = ();
+    my $ret = '';
     while( $self->{i} < $limit ) {
-        push @ret, scalar $self->next();    # need to force the scalar version to not push (i,value)
+        $ret .= scalar $self->next();    # need to force the scalar version to not push (i,value)
         $limit = $self->{period} if defined $self->{period} && $self->{period} < $limit;    # pick PERIOD if PERIOD smaller than LIMIT
     }
-    return wantarray ? @ret : join '', @ret;
+    return wantarray ? split(//, $ret) : $ret;
 }
 
 sub generate_all {
