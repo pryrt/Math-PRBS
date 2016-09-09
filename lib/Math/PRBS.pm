@@ -214,6 +214,10 @@ sub seek_to_i {
         #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
     $self->rewind() if $self->{i} > $n;
         #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
+# TODO =
+#   idea for coverage: i>=period will never be true on first loop (unless n > period: need to cover that except above, and test for it)
+#       so take the defined&&i>=p out of the while() condition, and just make it a break-condition after the ->next();
+#   similarly for seek-to-state
     while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period}))) {
         #print STDERR __LINE__, '='x80;
         #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
