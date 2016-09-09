@@ -16,15 +16,13 @@ v0.001_002
         gives a string, list context returns the list of values
     - add ->generate(n): generate the next n values from the sequence;
         scalar context => string, list context => array
-    TODO
-    - for the 'seek' family, there is no return (to match Math::NumSeq),
-        and thus no memory issue
-    - ->seek_to_end(): loop until {i} is at {period}; include limit=>n
-    - ->seek_forward($n): advance forward $n, but just return the last
-    - ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
+    - add ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
         tell_i or 0 to $i
-    - ->ith($i): alias for seek_to_i()
-    - ->seek_to_state($state): loop until ->tell_state() equals $state
+    - add ->ith($i): alias for seek_to_i()
+    - add ->seek_to_state($state): loop until ->tell_state() equals $state
+    - add ->seek_forward($n): advance forward $n, but just return the last
+    TODO
+    - ->seek_to_end(): loop until {i} is at {period}; include limit=>n
 
 v0.001_001
     - Initial experiments

@@ -175,11 +175,11 @@ Rewinds the sequence back to the starting state.  The subsequent call to C<next(
 
 =cut
 
-BEGIN { *rewind = \&reset; }
+BEGIN { *rewind = \&reset; }    # alias
 
 =item C<$i = $seq-E<gt>tell_i()>
 
-Return the current i position.  The subsequent call to C<next()> will return this i.
+Return the current C<i> position.  The subsequent call to C<next()> will return this C<i>.
 
 =cut
 
@@ -195,6 +195,73 @@ Return the current internal state of the feedback register.  Useful for debug, o
 
 sub tell_state {
     return $_[0]->{lfsr};
+}
+
+=item C<$seq-E<gt>seek_to_i( $n )>
+
+=item C<$seq-E<gt>ith( $n )>
+
+Moves forward in the sequence until C<i> reaches C<$n>.  If C<i E<gt> $n> already, will internally C<rewind()> first.  If C<$n E<gt> period>, it will stop at the end of the period, instead.
+
+=cut
+
+sub seek_to_i {
+    my $self = shift;
+    my $n = shift;
+
+        #local $\ = "\n";
+        #local $, = "\t";
+        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
+    $self->rewind() if $self->{i} > $n;
+        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
+    while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period}))) {
+        #print STDERR __LINE__, '='x80;
+        #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
+        #print STDERR __LINE__, "seek_to_i($n):", 'def(p)', defined $self->{period}, $self->{period}||-1;
+        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr}, 'before next';
+        #print STDERR __LINE__, '-'x80;
+        $self->next();
+        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr}, 'after next';
+        #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
+        #print STDERR __LINE__, "seek_to_i($n):", 'def(p)', defined $self->{period}, $self->{period}||-1;
+        #print STDERR __LINE__, '-'x80;
+    }
+        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
+}
+
+BEGIN { *ith = \&seek_to_i; }   # alias
+
+=item C<$seq-E<gt>seek_to_state( $lfsr )>
+
+Moves forward in the sequence until the internal LFSR state reaches C<$lfsr>.  It will wrap around, if necessary, but will stop once the internal state returns to the starting point.
+
+=cut
+
+sub seek_to_state {
+    my $self = shift;
+    my $lfsr = shift;
+    my $state = $self->{lfsr};
+
+        #local $\ = "\n";
+        #local $, = "\t";
+        #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
+    $self->next() unless $state == $lfsr;
+        #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
+    $self->next() while ($self->{lfsr} != $lfsr) && ($self->{lfsr} != $state);
+        #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
+}
+
+=item C<$seq-E<gt>seek_forward_n( $n )>
+
+Moves forward in the sequence C<$n> steps.
+
+=cut
+
+sub seek_forward_n {
+    my $self = shift;
+    my $n = shift;
+
+    $self->next() for 1 .. $n;
 }
 
 =item C<@all = $seq-E<gt>generate( I<n> )>
