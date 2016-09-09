@@ -8,8 +8,6 @@ use Test::More;# tests => 15;
 
 use Math::PRBS;
 
-my $t = time();
-my $dt;
 my ($seq, $exp, $got, @g);
 
 $seq = Math::PRBS->new( poly => '110' );

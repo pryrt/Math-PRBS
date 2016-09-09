@@ -10,9 +10,7 @@ use Math::PRBS;
 
 sub DEBUG { 0 };
 
-my $t = time();
-my $dt;
-my ($seq, $exp, $got, @g);
+my $seq;
 
 eval { no warnings qw(misc uninitialized); $seq = Math::PRBS->new( 15 ); }; chomp($@);
 ok( $@ ,                                                        "new(15) should fail due to unknown arguments" );

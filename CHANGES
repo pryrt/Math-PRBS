@@ -16,6 +16,12 @@ v0.001_002
     - ->generate(n): generate the next n values from the sequence;
         scalar context => string, list context => array
     TODO
+    - change the period('force') to period(force=>n), where n can be
+        a number, 'estimate', or 'max'
+    - for the 'seek' family, there is no return (to match Math::NumSeq),
+        and thus no memory issue
+    - ->seek_to_end(): loop until {i} is at {period}; include limit=>n
+    - ->seek_forward($n): advance forward $n, but just return the last
     - ->seek_to_i($i): if $i < tell_i(), run ->rewind first.  Loop from
         tell_i or 0 to $i
     - ->ith($i): alias for seek_to_i()

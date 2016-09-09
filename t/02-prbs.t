@@ -8,8 +8,6 @@ use Test::More;# tests => 15;
 
 use Math::PRBS;
 
-my $t = time();
-my $dt;
 my ($seq, $exp, $got, @g);
 
 $seq = Math::PRBS->new( prbs => 7 );
@@ -59,33 +57,17 @@ is( $seq->tell_state, '16384',                                  'PRBS15: ->tell_
 $seq->generate_to_end();   # $seq->next()    until defined $seq->period();
 is( $seq->period(), 2**15-1,                                    'PRBS15: ->period       = length of sequence' );
 
-$t = time();
-diag("\n", "PRBS23: may take quite a few seconds");
+# just test initial generation-information on PRBS-23 and PRBS-31
 $seq = Math::PRBS->new( prbs => 23 );
 is( $seq->description, 'PRBS from polynomial x**23 + x**18 + 1',  'PRBS23: ->description');
 is( $seq->oeis_anum, undef,                                     'PRBS23: ->oeis_anum');
 is_deeply( $seq->taps(), [23,18],                               'PRBS23: ->taps         = x**23 + x**18 + 1' );
 is( $seq->tell_state, '4194304',                                'PRBS23: ->tell_state   = internal LFSR state' );
-$seq->generate_to_end();   # default limit: 65535 = not long enough
-is( $seq->period(), undef,                                      'PRBS23: ->generate_to_end, ->period = should hit limit => 65535' );
-is( $seq->tell_i, '65535',                                      'PRBS23: ->tell_i       = hit 65535 limit' );
-$seq->generate_to_end( limit => 2**23 );   # $seq->next()    until defined $seq->period();
-is( $seq->period(), 2**23-1,                                    'PRBS23: ->generate_to_end(limit = 2**23), ->period = should find actual length of sequence' );
-is( $seq->tell_i, 2**23-1,                                      'PRBS23: ->tell_i       = found the whole sequence' );
-diag( "PRBS23: Elapsed time: ", $dt=time()-$t, "sec");
 
 $seq = Math::PRBS->new( prbs => 31 );
 is( $seq->description, 'PRBS from polynomial x**31 + x**28 + 1',  'PRBS31: ->description');
 is( $seq->oeis_anum, undef,                                     'PRBS32: ->oeis_anum');
 is_deeply( $seq->taps(), [31,28],                               'PRBS31: ->taps         = x**31 + x**28 + 1' );
 is( $seq->tell_state, '1073741824',                             'PRBS31: ->tell_state   = internal LFSR state' );
-SKIP: {
-    $dt *= 256;   # 2**31-1 / 2**23-1 =~ 2**8 = 256x as long
-    my $str = sprintf 'PRBS31: estimate 2**31-1 iterations would take %dsec', $dt;
-    skip $str, 1   if $dt > 60;
-    diag( $str );
-    $seq->next()    until defined $seq->period();
-    is( $seq->period(), 2**31-1,                                'PRBS31: ->period       = length of sequence' );
-}
 
 done_testing();

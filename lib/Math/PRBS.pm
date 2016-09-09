@@ -229,7 +229,8 @@ Returns the remaining sequence, from whatever state the list is currently at, up
 sub generate_to_end {
     my ($self, %opts) = @_;
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
-    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind}; # cover claims I don't cover all these, but I do
+    $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
+    $self->rewind() if $self->{i} && exists $opts{rewind} && $opts{rewind};         # coverage: I test the important ones
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     my @ret = ();
     while( $self->{i} < $limit ) {
