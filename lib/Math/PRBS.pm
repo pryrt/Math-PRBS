@@ -284,36 +284,45 @@ sub taps {
     return [@taps];
 }
 
-=item C<$i = $seq-E<gt>period( I<force> )>
+=item C<$i = $seq-E<gt>period( I<force =E<gt> 'estimate' | $n | 'max'> )>
 
 Returns the period of the sequence.
 
-    $i = $seq->period();
+Without any arguments, will return undef if the period hasn't been determined yet (ie, haven't travelled far enough in the sequence):
 
-Without any arguments, will return undef if the period hasn't been determined yet.
+    $i = $seq->period();                        # unknown => undef
 
-    $i = $seq->period('force');
+If I<force> is set to 'estimate', will return C<period = 2**k - 1> if the period hasn't been determined yet:
 
-If I<force> is "force", it will try to generate the whole sequence (up to C<i = 2**23 - 1>), and return the period if found, or undef if not found.
+    $i = $seq->period(force => 'estimate');     # unknown => 2**k - 1
 
-    $i = $seq->period('forceBig');
+If I<force> is set to an integer C<$n>, it will try to generate the whole sequence (up to C<tell_i E<lt>= $n>), and return the period if found, or undef if not found.
 
-If I<force> is "forceBig", it will loop thru the entire sequence (up to C<i = 2**k - 1>), and return the period that was found.  It will still return  undef if still not found, but all sequences B<should> find the period within C<2**k-1>.  If you find a sequence that doesn't, feel free to file a bug report, including the C<Math::PRBS-E<gt>new()> command listing the taps array or poly string; if C<k> is greater than C<32>, please include a code that fixes the bug in the bug report, as development resources may not allow for debug of issues when C<k E<gt> 32>.
+    $i = $seq->period(force => $n);             # look until $n; undef if sequence period still not found
+
+If I<force> is set 'max', it will loop thru the entire sequence (up to C<i = 2**k - 1>), and return the period that was found.  It will still return  undef if still not found, but all sequences B<should> find the period within C<2**k-1>.  If you find a sequence that doesn't, feel free to file a bug report, including the C<Math::PRBS-E<gt>new()> command listing the taps array or poly string; if C<k> is greater than C<32>, please include a code that fixes the bug in the bug report, as development resources may not allow for debug of issues when C<k E<gt> 32>.
+
+    $i = $seq->period(force => 'max');          # look until 2**k - 1; undef if sequence period still not found
+
 
 =cut
 
 sub period {
-    my $self = shift;
-    my $force = shift || 0;
-    return $self->{period} if defined $self->{period};      # if period's already computed, use it
-    my $max = 2**$self->{taps}[0] - 1;
-    return $max if $force =~ /^(est|estimate)$/i;
+    my $self  = shift;
+    return $self->{period} if defined $self->{period};              # if period's already computed, use it
 
-    # ... loop thru all, but safely ... #
-    if($force =~ /^force/i ) {  # 'force' or 'forceBig'
-        $max = 65535 if (($max>65535) && ($force !~ /^forceBig/i));     # don't go more than 65535 unless forceBig
-        $self->next while $self->{i}<$max && !defined $self->{period};
-    }
+    my %opts  = 0==@_%2 ? map(lc, @_) : ();
+    my $force = exists($opts{force}) ? $opts{force} : 'not';
+    return $self->{period} if 'not' eq $force;                      # if not forced, return the undefined period
+
+    my $max = 2**$self->{taps}[0] - 1;                              # if forced, max is 2**k-1
+    return $max if $force eq 'estimate';                            # if estimate, guess that period is maximal
+
+    $max = $force   unless $force =~ /[^\d]/;                       # don't change max if force is a string (or negative, or floatingpoint)
+
+    # ... loop thru all, until limit is reached or period is defined
+    $self->next while $self->{i}<$max && !defined $self->{period};
+
     return $self->{period};
 }
 
