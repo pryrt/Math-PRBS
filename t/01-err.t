@@ -8,7 +8,7 @@ use Test::More tests => 8;
 
 use Math::PRBS;
 
-sub DEBUG { 0 };
+sub DEBUG { 1 };
 
 my $seq;
 
@@ -45,4 +45,8 @@ diag( $@ ) if DEBUG;
 
 eval { $seq = Math::PRBS->new( poly => '000' ); }; chomp($@);
 ok( $@ ,                                                        "new(taps=>'000') should fail due to 'poly' needing at least one tap" );
+diag( $@ ) if DEBUG;
+
+eval { Math::PRBS->new( poly => '110' )->period(5); }; chomp($@);
+ok( $@ ,                                                        "period(5) should fail due to requiring a hash argument" );
 diag( $@ ) if DEBUG;

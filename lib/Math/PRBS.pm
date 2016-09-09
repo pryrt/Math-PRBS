@@ -311,7 +311,9 @@ sub period {
     my $self  = shift;
     return $self->{period} if defined $self->{period};              # if period's already computed, use it
 
-    my %opts  = 0==@_%2 ? map(lc, @_) : ();
+    die __PACKAGE__."::period(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+
+    my %opts  = map lc, @_;                                         # lowercase the arguments and make them into a canonical hash
     my $force = exists($opts{force}) ? $opts{force} : 'not';
     return $self->{period} if 'not' eq $force;                      # if not forced, return the undefined period
 
