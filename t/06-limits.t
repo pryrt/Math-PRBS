@@ -9,7 +9,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More;# tests => 15;
+use Test::More tests => 22;
 
 use Math::PRBS;
 
@@ -64,5 +64,3 @@ $seq = Math::PRBS->new( taps => [17,5] );
 $got = $seq->period(force => 'max');
 is( $got,         131_071,                                      '[17,5]->period(force=>"max")               = string length');
 is( $seq->tell_i, 131_071,                                      '[17,5]->period(force=>"max")               = tell_i()');
-
-done_testing();

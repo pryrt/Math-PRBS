@@ -4,7 +4,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More;# tests => 15;
+use Test::More tests => 38;
 
 use Math::PRBS;
 
