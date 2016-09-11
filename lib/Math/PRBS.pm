@@ -665,6 +665,26 @@ If you want to create try own polynonial to find a long m-sequence, here are som
 
 =back
 
+=head1 AUTHOR
+
+Peter C. Jones C<E<lt>petercj AT cpan DOT orgE<gt>>
+
+Please report any bugs or feature requests thru the web interface at
+L<https://github.com/pryrt/Math-PRBS/issues>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2016 Peter C. Jones
+
+=head1 LICENCE
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See L<http://dev.perl.org/licenses/> for more information.
+
+
 =cut
 
 1;
