@@ -30,19 +30,46 @@ is( $seq->tell_state,            29,                            'SEEK->seek_to_s
 is( $seq->tell_i,                 9,                            'SEEK->tell_i                       = iterator index' );
 
 $seq->seek_forward_n(5);
-is( $seq->tell_i,                14,                            'SEEK->seek_forward_n(5)->tell_i    = go forward 5: old_i(9)+forward(5) => tell_i' );
+is( $seq->tell_i,                14,                            'SEEK->seek_forward_n(5), ->tell_i  = go forward 5: old_i(9)+forward(5) => tell_i' );
 is( $seq->tell_state,            17,                            'SEEK->tell_state                   = internal LFSR state' );
 
 $seq->seek_forward_n(21);
-is( $seq->tell_i,                35,                            'SEEK->seek_forward_n(21)->tell_i   = go forward 21' );
+is( $seq->tell_i,                35,                            'SEEK->seek_forward_n(21), ->tell_i = go forward 21' );
 is( $seq->tell_state,            10,                            'SEEK->tell_state                   = internal LFSR state' );
 
 $seq->seek_forward_n(31);   # move forward 1 period
-is( $seq->tell_i,                66,                            'SEEK->seek_forward_n(31)->tell_i   = this i should be equivalent to previous i' );
+is( $seq->tell_i,                66,                            'SEEK->seek_forward_n(31), ->tell_i = this i should be equivalent to previous i' );
 is( $seq->tell_state,            10,                            'SEEK->tell_state                   = internal LFSR state' );
 
 $seq->seek_to_i(4);         # i % 31
-is( $seq->tell_i,                 4,                            'SEEK->seek_to_i(4)->tell_i         = this i should be equivalent to previous i' );
+is( $seq->tell_i,                 4,                            'SEEK->seek_to_i(4), ->tell_i       = this i should be equivalent to previous i' );
 is( $seq->tell_state,            10,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->seek_to_end();
+is( $seq->tell_i,                31,                            'SEEK->seek_to_end(), ->tell_i      = this i should be {period}' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->seek_forward_n(1);
+$seq->seek_to_end();
+is( $seq->tell_i,                31,                            'SEEK->seek_to_end(), ->tell_i      = so should this i' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->{period} = undef;
+$seq->seek_to_i(1);
+$seq->seek_to_end();
+is( $seq->tell_i,                31,                            'SEEK->seek_to_end(), ->tell_i      = try again after undefining of the period, should hit the same place' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->seek_to_i(1);
+$seq->{period} = undef;
+$seq->seek_to_i(32);    # try seeking beyond the end when period not yet defined
+is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period undefined' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->seek_to_i(1);
+$seq->{period} = undef;
+$seq->seek_to_i(32);    # try seeking beyond the end when period already defined
+is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period defined' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
 
 done_testing();

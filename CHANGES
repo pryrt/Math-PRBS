@@ -21,8 +21,7 @@ v0.001_002
     - add ->ith($i): alias for seek_to_i()
     - add ->seek_to_state($state): loop until ->tell_state() equals $state
     - add ->seek_forward($n): advance forward $n, but just return the last
-    TODO
-    - ->seek_to_end(): loop until {i} is at {period}; include limit=>n
+    - add ->seek_to_end(): loop until {i} is at {period}; include limit=>n
 
 v0.001_001
     - Initial experiments

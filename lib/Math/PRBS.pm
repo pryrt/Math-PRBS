@@ -218,7 +218,7 @@ sub seek_to_i {
 #   idea for coverage: i>=period will never be true on first loop (unless n > period: need to cover that except above, and test for it)
 #       so take the defined&&i>=p out of the while() condition, and just make it a break-condition after the ->next();
 #   similarly for seek-to-state
-    while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period}))) {
+    while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period}))) { # I disagree with Devel::Cover
         #print STDERR __LINE__, '='x80;
         #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
         #print STDERR __LINE__, "seek_to_i($n):", 'def(p)', defined $self->{period}, $self->{period}||-1;
@@ -251,7 +251,7 @@ sub seek_to_state {
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
     $self->next() unless $state == $lfsr;
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
-    $self->next() while ($self->{lfsr} != $lfsr) && ($self->{lfsr} != $state);
+    $self->next() while ($self->{lfsr} != $lfsr) && ($self->{lfsr} != $state);		# I disagree with Devel::Cover
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
 }
 
@@ -266,6 +266,29 @@ sub seek_forward_n {
     my $n = shift;
 
     $self->next() for 1 .. $n;
+}
+
+=item C<$seq-E<gt>seek_to_end()>
+
+=item C<$seq-E<gt>seek_to_end( limit => )>
+
+Moves forward until it's reached the end of the the period.  (Will start in the first period using C<tell_i % period>.)
+
+=cut
+
+sub seek_to_end {
+    my $self = shift;
+
+    die __PACKAGE__."::generate_to_end(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+
+    my %opts = map lc, @_;  # lowercase name,value pairs for canonical
+    my $limit = exists $opts{limit} ? $opts{limit} : 65535;
+    $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
+    $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period}; # i disagree
+    while( $self->{i} % $limit ) {
+        $self->next();
+        $limit = $self->{period} if defined $self->{period} && $self->{period} < $limit;    # pick PERIOD if PERIOD smaller than LIMIT
+    }
 }
 
 =item C<@all = $seq-E<gt>generate( I<n> )>
@@ -305,7 +328,7 @@ sub generate_to_end {
     my %opts = map lc, @_;  # lowercase name,value pairs for canonical
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
-    $self->rewind() if ($self->{i} && ($opts{rewind}||0));  # coverage: Devel::Cover is wrong; I test 0X, 10, and 11.
+    $self->rewind() if ($self->{i} && ($opts{rewind}||0));  # coverage: Devel::Cover is wrong; I have done prints here that show I test 0X, 10, and 11.
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     my $ret = '';
     while( $self->{i} < $limit ) {
