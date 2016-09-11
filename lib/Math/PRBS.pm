@@ -250,9 +250,11 @@ sub seek_forward_n {
 
 =item C<$seq-E<gt>seek_to_end()>
 
-=item C<$seq-E<gt>seek_to_end( limit => )>
+=item C<$seq-E<gt>seek_to_end( limit => $n )>
 
 Moves forward until it's reached the end of the the period.  (Will start in the first period using C<tell_i % period>.)
+
+If C<limit => $n> is used, will not seek beyond C<tell_i == $n>.
 
 =cut
 

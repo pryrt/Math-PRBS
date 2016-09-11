@@ -103,6 +103,13 @@ FUNCTIONS AND METHODS
     "$seq->seek_forward_n( $n )"
         Moves forward in the sequence $n steps.
 
+    "$seq->seek_to_end()"
+    "$seq->seek_to_end( limit =" $n )>
+        Moves forward until it's reached the end of the the period. (Will
+        start in the first period using "tell_i % period".)
+
+        If "limit =" $n> is used, will not seek beyond "tell_i == $n".
+
     "@all = $seq->generate( *n* )"
         Generates the next *n* values in the sequence, wrapping around if it
         reaches the end. In list context, returns the values as a list; in
