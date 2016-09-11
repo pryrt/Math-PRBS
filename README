@@ -104,7 +104,7 @@ FUNCTIONS AND METHODS
         Moves forward in the sequence $n steps.
 
     "$seq->seek_to_end()"
-    "$seq->seek_to_end( limit =" $n )>
+    "$seq->seek_to_end( limit => $n )"
         Moves forward until it's reached the end of the the period. (Will
         start in the first period using "tell_i % period".)
 
