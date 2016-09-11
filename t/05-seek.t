@@ -63,13 +63,18 @@ is( $seq->tell_state,            16,                            'SEEK->tell_stat
 $seq->seek_to_i(1);
 $seq->{period} = undef;
 $seq->seek_to_i(32);    # try seeking beyond the end when period not yet defined
-is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period undefined' );
+is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period undefined: stop at end' );
 is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
 
 $seq->seek_to_i(1);
 $seq->{period} = undef;
 $seq->seek_to_i(32);    # try seeking beyond the end when period already defined
-is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period defined' );
+is( $seq->tell_i,                31,                            'SEEK->seek_to_i(32), ->tell_i      = seek beyond end with period defined: stop at end' );
+is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
+
+$seq->rewind();
+$seq->seek_to_state(99);    # try seeking to an impossible state
+is( $seq->tell_i,                31,                            'SEEK->seek_to_state(99), ->tell_i  = seek to impossible state: stop at end' );
 is( $seq->tell_state,            16,                            'SEEK->tell_state                   = internal LFSR state' );
 
 done_testing();

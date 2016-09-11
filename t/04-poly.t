@@ -4,7 +4,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More;# tests => 15;
+use Test::More tests => 8;
 
 use Math::PRBS;
 
@@ -28,6 +28,4 @@ is( $seq->period(), 2**3-1,                                                 'pol
 $seq->rewind(); # verify reset vs rewind
 $exp = '1110100';
 $got = join '', $seq->generate_to_end();
-is( $got, $exp,                                                             'poly("101")->all               = full sequence' );
-
-done_testing();
+is( $got, $exp,                                                             'poly("101")->generate_to_end   = full sequence' );

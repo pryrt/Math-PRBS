@@ -209,28 +209,8 @@ sub seek_to_i {
     my $self = shift;
     my $n = shift;
 
-        #local $\ = "\n";
-        #local $, = "\t";
-        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
     $self->rewind() if $self->{i} > $n;
-        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
-# TODO =
-#   idea for coverage: i>=period will never be true on first loop (unless n > period: need to cover that except above, and test for it)
-#       so take the defined&&i>=p out of the while() condition, and just make it a break-condition after the ->next();
-#   similarly for seek-to-state
-    while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period}))) { # I disagree with Devel::Cover
-        #print STDERR __LINE__, '='x80;
-        #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
-        #print STDERR __LINE__, "seek_to_i($n):", 'def(p)', defined $self->{period}, $self->{period}||-1;
-        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr}, 'before next';
-        #print STDERR __LINE__, '-'x80;
-        $self->next();
-        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr}, 'after next';
-        #print STDERR __LINE__, "seek_to_i($n):", 'i<n', $self->{i} . '<' . $n, $self->{i} < $n;
-        #print STDERR __LINE__, "seek_to_i($n):", 'def(p)', defined $self->{period}, $self->{period}||-1;
-        #print STDERR __LINE__, '-'x80;
-    }
-        #print STDERR __LINE__, "seek_to_i($n):", $self->{i}, $self->{lfsr};
+    $self->next() while(($self->{i} < $n) && !(defined($self->{period}) && ($self->{i} >= $self->{period})));
 }
 
 BEGIN { *ith = \&seek_to_i; }   # alias
@@ -251,7 +231,7 @@ sub seek_to_state {
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
     $self->next() unless $state == $lfsr;
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
-    $self->next() while ($self->{lfsr} != $lfsr) && ($self->{lfsr} != $state);		# I disagree with Devel::Cover
+    $self->next() while ($self->{lfsr} != $lfsr) && ($self->{lfsr} != $state);          # Devel::Cover = the coverage hole is because I am testing for a condition that shouldn't be possible: getting back to initial state without ever having
         #print STDERR __LINE__, "seek_to_state($lfsr):", $self->{i}, $self->{lfsr};
 }
 
@@ -284,7 +264,7 @@ sub seek_to_end {
     my %opts = map lc, @_;  # lowercase name,value pairs for canonical
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
-    $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period}; # i disagree
+    $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     while( $self->{i} % $limit ) {
         $self->next();
         $limit = $self->{period} if defined $self->{period} && $self->{period} < $limit;    # pick PERIOD if PERIOD smaller than LIMIT
@@ -328,7 +308,13 @@ sub generate_to_end {
     my %opts = map lc, @_;  # lowercase name,value pairs for canonical
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
     $limit = (2 ** $self->{taps}[0] - 1) if lc($limit) eq 'max';
-    $self->rewind() if ($self->{i} && ($opts{rewind}||0));  # coverage: Devel::Cover is wrong; I have done prints here that show I test 0X, 10, and 11.
+    # originally, the next block was "$self->rewind() if ($self->{i} && $opts{rewind});", but Devel::Cover complained that not all conditions were tested
+    #   so I broke it into the following, which made Devel::Cover happy: note, it doesn't matter whether the i comes before or after rewind
+    if ($self->{i}) {
+        if( $opts{rewind} ) {
+            $self->rewind();
+        }
+    }
     $self->{i} %= $self->{period}   if defined $self->{period} && $self->{i} > $self->{period};
     my $ret = '';
     while( $self->{i} < $limit ) {
