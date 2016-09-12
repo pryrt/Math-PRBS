@@ -7,7 +7,7 @@ SYNOPSIS
         my $x3x2  = Math::PRBS->new( taps => [3,2] );
         my $prbs7 = Math::PRBS->new( prbs => 7 );
         my ($i, $value) = $x3x2t->next();
-        my @p7 = $prbs7->all();
+        my @p7 = $prbs7->generate_all();
 
 DESCRIPTION
     This module will generate various Pseudorandom Binary Sequences (PRBS).
