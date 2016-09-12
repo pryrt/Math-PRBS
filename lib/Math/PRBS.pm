@@ -7,7 +7,7 @@ package Math::PRBS;
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = version->declare('0.001_002');
+use version 0.77; our $VERSION = version->declare('0.002');
 
 =head1 SYNOPSIS
 
@@ -15,7 +15,7 @@ use version 0.77; our $VERSION = version->declare('0.001_002');
     my $x3x2  = Math::PRBS->new( taps => [3,2] );
     my $prbs7 = Math::PRBS->new( prbs => 7 );
     my ($i, $value) = $x3x2t->next();
-    my @p7 = $prbs7->all();
+    my @p7 = $prbs7->generate_all();
 
 =head1 DESCRIPTION
 
