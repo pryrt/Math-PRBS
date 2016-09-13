@@ -74,6 +74,9 @@ use 5.006;
             'Config' => 0,
         };
     }
+    if( $ExtUtils::MakeMaker::VERSION >= '6.18' ) {
+        $mm_args{SIGN} = 1 if MM->can('signature_target');
+    }
     #if(1) {
     #    $mm_args{postamble} = {
     #        blah => 0,
@@ -89,16 +92,12 @@ sub MY::postamble {
     return <<'POSTAMBLE';
 TEST_D = $(ABSPERLRUN) -MExtUtils::Command -e test_d --
 
-pcj_clean :: realclean
-	$(NOECHO) ( $(TEST_F) pod.html && $(RM_F) pod.html  ) || $(ECHO) pcj_clean: skip "rm -f pod.html"
-	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) pcj_clean: skip "rm -rf cover_db"
-
 testcover :: lib/Math/PRBS.pm
 	$(NOECHO) cover -test -report html
 
-pod.html :: lib/Math/PRBS.pm
-	$(NOECHO) $(TEST_F) pod.css && pod2html --css=pod.css --outfile=pod.html lib/Math/PRBS.pm
-	$(NOECHO) ( $(TEST_F) pod2htmd.tmp && $(RM_F) pod2htmd.tmp ) || $(ECHO) pod.html: skip "rm -f pod2htmd.tmp"
+#coverclean :: realclean
+realclean ::
+	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) realclean:: skip "rm -rf cover_db"
 
 POSTAMBLE
 }
