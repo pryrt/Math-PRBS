@@ -97,8 +97,12 @@ TEST_D = $(ABSPERLRUN) -MExtUtils::Command -e test_d --
 testcover :: lib/Math/PRBS.pm
 	$(NOECHO) cover -test -report html
 
-# addition to disttest: also run author-tests -- might need to be replaced by  "^disttestauth :: disttest" if I determine that it shouldn't run _every_ disttest
-disttest ::
+# run author-tests on the original
+authtest ::
+	$(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
+
+# run author-tests on the distribution
+distauthtest :: disttest
 	cd $(DISTVNAME) && $(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
 
 # addition to realclean: also delete coverage database, if testcover was run
