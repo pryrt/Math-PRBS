@@ -74,6 +74,9 @@ use 5.006;
             'Config' => 0,
         };
     }
+    if( $ExtUtils::MakeMaker::VERSION >= '6.18' ) {
+        $mm_args{SIGN} = 1 if MM->can('signature_target');
+    }
     #if(1) {
     #    $mm_args{postamble} = {
     #        blah => 0,
@@ -87,18 +90,20 @@ sub MY::postamble {
     #require Data::Dumper;
     #print STDERR Data::Dumper->Dump([\%h], [qw(mm_args{postamble})]);
     return <<'POSTAMBLE';
+# TEST_D is used to test for the existence of a directory
 TEST_D = $(ABSPERLRUN) -MExtUtils::Command -e test_d --
 
-pcj_clean :: realclean
-	$(NOECHO) ( $(TEST_F) pod.html && $(RM_F) pod.html  ) || $(ECHO) pcj_clean: skip "rm -f pod.html"
-	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) pcj_clean: skip "rm -rf cover_db"
-
+# run a test coverage report
 testcover :: lib/Math/PRBS.pm
 	$(NOECHO) cover -test -report html
 
-pod.html :: lib/Math/PRBS.pm
-	$(NOECHO) $(TEST_F) pod.css && pod2html --css=pod.css --outfile=pod.html lib/Math/PRBS.pm
-	$(NOECHO) ( $(TEST_F) pod2htmd.tmp && $(RM_F) pod2htmd.tmp ) || $(ECHO) pod.html: skip "rm -f pod2htmd.tmp"
+# addition to disttest: also run author-tests -- might need to be replaced by  "^disttestauth :: disttest" if I determine that it shouldn't run _every_ disttest
+disttest ::
+	cd $(DISTVNAME) && $(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
+
+# addition to realclean: also delete coverage database, if testcover was run
+realclean ::
+	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) realclean:: skip "rm -rf cover_db"
 
 POSTAMBLE
 }
