@@ -75,14 +75,8 @@ use 5.006;
         };
     }
     if( $ExtUtils::MakeMaker::VERSION >= '6.18' ) {
-        $mm_args{SIGN} = 1 if MM->can('signature_target');
+        $mm_args{SIGN} = 1 if MM->can('signature_target') && $ENV{MM_SIGN_DIST};
     }
-    #if(1) {
-    #    $mm_args{postamble} = {
-    #        blah => 0,
-    #        pcj => 1975,
-    #    }
-    #}
 }
 
 sub MY::postamble {
