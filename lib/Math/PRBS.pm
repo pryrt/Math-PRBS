@@ -7,7 +7,7 @@ package Math::PRBS;
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = version->declare('0.002');
+use version 0.77; our $VERSION = version->declare('0.003');
 
 =head1 SYNOPSIS
 

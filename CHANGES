@@ -1,5 +1,8 @@
 Revision history for Perl module Math::PRBS.
 
+v0.003  IN PROGRESS
+    - (2017-Mar-22) Add module signature and author tests (xt/*.t)
+
 v0.002  2016-Sep-12
     - Initial public release
 
