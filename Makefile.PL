@@ -90,12 +90,18 @@ sub MY::postamble {
     #require Data::Dumper;
     #print STDERR Data::Dumper->Dump([\%h], [qw(mm_args{postamble})]);
     return <<'POSTAMBLE';
+# TEST_D is used to test for the existence of a directory
 TEST_D = $(ABSPERLRUN) -MExtUtils::Command -e test_d --
 
+# run a test coverage report
 testcover :: lib/Math/PRBS.pm
 	$(NOECHO) cover -test -report html
 
-#coverclean :: realclean
+# addition to disttest: also run author-tests -- might need to be replaced by  "^disttestauth :: disttest" if I determine that it shouldn't run _every_ disttest
+disttest ::
+	cd $(DISTVNAME) && $(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
+
+# addition to realclean: also delete coverage database, if testcover was run
 realclean ::
 	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) realclean:: skip "rm -rf cover_db"
 
