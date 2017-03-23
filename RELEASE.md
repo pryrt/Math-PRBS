@@ -1,7 +1,7 @@
 [![](https://img.shields.io/cpan/v/Math-PRBS.svg?colorB=00CC00 "metacpan")](https://metacpan.org/pod/Math::PRBS)
 [![](http://cpants.cpanauthors.org/dist/Math-PRBS.png "cpan testers")](http://matrix.cpantesters.org/?dist=Math-PRBS)
-[![](https://img.shields.io/github/release/pryrt/Math-PRBS.svg "github release")](https://github.pryrt.com/Math-PRBS/releases)
-[![](https://img.shields.io/github/issues/pryrt/Math-PRBS.svg "issues")](https://github.pryrt.com/Math-PRBS/issues)
+[![](https://img.shields.io/github/release/pryrt/Math-PRBS.svg "github release")](https://github.com/pryrt/Math-PRBS/releases)
+[![](https://img.shields.io/github/issues/pryrt/Math-PRBS.svg "issues")](https://github.com/pryrt/Math-PRBS/issues)
 [![](https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master "build status")](https://travis-ci.org/pryrt/Math-PRBS)
 [![](https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master "test coverage")](https://coveralls.io/github/pryrt/Math-PRBS?branch=master)
 
