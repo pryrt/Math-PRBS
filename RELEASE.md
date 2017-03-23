@@ -1,19 +1,86 @@
+[![](https://img.shields.io/cpan/v/Math-PRBS.svg?colorB=00CC00 "metacpan")](https://metacpan.org/pod/Math::PRBS)
+[![](http://cpants.cpanauthors.org/dist/Math-PRBS.png "cpan testers")](matrix.cpantesters.org/?dist=Math-PRBS)
+[![](https://img.shields.io/github/release/pryrt/Math-PRBS.svg "github release")](https://github.pryrt.com/Math-PRBS/releases)
+[![](https://img.shields.io/github/issues/pryrt/Math-PRBS.svg "issues")](https://github.pryrt.com/Math-PRBS/issues)
+[![](https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master "build status")](https://travis-ci.org/pryrt/Math-PRBS)
+[![](https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master "test coverage")](https://coveralls.io/github/pryrt/Math-PRBS?branch=master)
+
 # Releasing Math::PRBS
 
-Eventually, notes will go here for testing and releasing the distrib.
+This describes some of my methodology for releasing a distribution.  To help with testing and coverage, I've integrated the [GitHub repo](https://github.com/pryrt/Math-PRBS/) with [Travis-CI](https://travis-ci.org/pryrt/Math-PRBS) and [coveralls.io](https://coveralls.io/github/pryrt/Math-PRBS)
 
-## Badges
+## My Methodology
 
-![](https://img.shields.io/github/release/pryrt/Math-PRBS.svg)
-![](https://img.shields.io/github/tag/pryrt/Math-PRBS.svg)
-![](https://img.shields.io/github/issues/pryrt/Math-PRBS.svg)
-![](https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master)](https://coveralls.io/github/pryrt/Math-PRBS?branch=master)
+I use a local svn client to checkout the GitHub repo.  All these things can be done with a git client, but the terminology changes, and I cease being comfortable.
 
-## Travis-CI
+* **Development:**
 
-[Math::PRBS @ Travis-CI](https://travis-ci.org/pryrt/Math-PRBS/) should automatically run on each commit
+    * **GitHub:** create a branch
 
-## Coveralls.IO
+    * **svn:** switch from trunk to branch
 
-[Math::PRBS @ Coveralls.io](https://coveralls.io/github/pryrt/Math-PRBS) should automatically run after Travis-CI has completed a build
+    * `prove -l t` for normal tests, `prove -l xt` for author tests
+    * use `berrybrew exec` or `perlbrew exec` on those `prove`s to get a wider suite
+    * every `svn commit` to the GitHub repo should trigger Travis-CI build suite
+
+* **Release:**
+
+    * **Verify Documentation:**
+        * make sure versioning is correct
+        * verify POD and README
+        * verify HISTORY
+
+    * **Build Distribution**
+
+            dmake realclean         # clear out all the extra junk
+            perl Makefile.PL        # create a new makefile
+            dmake                   # copy the library to ./blib/lib...
+            dmake distcheck         # if you want to check for new or removed files
+            dmake manifest          # if distcheck() showed discrepancies
+            dmake disttest          # optional, if you want to verify that make test will work for the CPAN audience
+            set MM_SIGN_DIST=1      # enable signatures for build
+            set TEST_SIGNATURE=1    # verify signatures during `disttest`
+            dmake disttest          # optional, if you want to verify that make test will work for the CPAN audience
+            set TEST_SIGNATURE=1    # clear signature verification during `disttest`
+            dmake dist              # actually make the tarball
+            dmake realclean         # clean out this directory
+
+    * **svn:** final commit of the development branch
+
+    * **GitHub:** make a pull request to bring the branch back into the trunk
+        * This should trigger Travis-CI approval for the pull request
+        * Once Travis-CI approves, need to approve the pull request, then the branch will be merged back into the trunk
+        * If that branch is truly done, delete the branch using the pull-request page
+
+    * **GitHub:** [create a new release](https://help.github.com/articles/creating-releases/):
+        * Releases > Releases > Draft a New Release
+        * tag name = `v#.###`
+        * release title = `v#.###`
+
+    * **PAUSE:** [upload distribution tarball to CPAN/PAUSE](https://pause.perl.org/pause/authenquery?ACTION=add_uri) by browsing to the file on my computer.
+        * Watch <https://metacpan.org/author/PETERCJ> and <http://search.cpan.org/~petercj/> for when it updates
+        * Clear out any [GitHub issues](https://github.com/pryrt/Math-PRBS/issues/)
+
+
+<style>
+body { font-family: sans-serif; }
+code {
+    font-family: monospace;
+    white-space: pre;
+    display: inline;
+    border: 1px solid #677;
+    border-radius: 4px;
+    padding: 0 2px;
+    background: #cff;
+}
+pre code {
+    display: block;
+}
+blockquote {
+    font-style: italic;
+    font-size: smaller;
+    color: grey;
+    border-left: 1px dotted black;
+    padding-left: 1ex;
+}
+</style>
