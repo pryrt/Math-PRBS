@@ -12,8 +12,8 @@ my ($seq, $exp, $got, @g);
 
 $seq = Math::PRBS->new( prbs => 7 );
 is( ref($seq), 'Math::PRBS',                                    'PRBS7: Create' );
-is( $seq->description, 'PRBS from polynomial x**7 + x**6 + 1',    'PRBS7: ->description');
-is( undef, undef,                                               'PRBS7: ->oeis_anum');
+is( $seq->description, 'PRBS from polynomial x**7 + x**6 + 1',  'PRBS7: ->description');
+is( $seq->oeis_anum, 'A011686',                                 'PRBS7: ->oeis_anum');
 is_deeply( $seq->taps(), [7,6],                                 'PRBS7: ->taps          = x**7 + x**6 + 1' );
 is( $seq->next(), '1',                                          'PRBS7: ->next: scalar  = v[i]       = first' );
 is( $seq->tell_state, '1',                                      'PRBS7: ->tell_state    = internal LFSR state' );

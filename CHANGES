@@ -1,6 +1,9 @@
 Revision history for Perl module Math::PRBS.
 
 v0.003  IN PROGRESS
+    - (2018-Jun-13) Fix test coverage (via author tests) for `oeis_anum()`  (issue#4)
+    - (2018-Jun-13) Fix documentation mistakes (issue#3)
+    - (2018-Jun-13) Fix travis config to only do coverage once, and not run coverage on the .t files
     - (2017-Mar-22) Add module signature and author tests (xt/*.t)
 
 v0.002  2016-Sep-12
