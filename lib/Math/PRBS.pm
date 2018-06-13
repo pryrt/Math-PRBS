@@ -360,6 +360,19 @@ sub description {
     return "PRBS from polynomial $p + 1";
 }
 
+=item C<$n = $seq-E<gt>nbits>
+
+Returns the number of bits (which is the power of the largest tap).
+
+    $seq = Math::PRBS->new( taps => [6,7] );
+    $n = $seq->nbits();                     # 7
+
+=cut
+
+sub nbits {
+    return (sort {$b<=>$a} @{ $_[0]->{taps}})[0];
+}
+
 =item C<$i = $seq-E<gt>taps>
 
 Returns an array-reference containing the list of tap identifiers, which could then be passed to C<-E<gt>new(taps =E<gt> ...)>.
@@ -370,8 +383,7 @@ Returns an array-reference containing the list of tap identifiers, which could t
 =cut
 
 sub taps {
-    my @taps = @{ $_[0]->{taps} };
-    return [@taps];
+    return [@{ $_[0]->{taps} }];
 }
 
 =item C<$i = $seq-E<gt>period( I<force =E<gt> 'estimate' | $n | 'max'> )>
