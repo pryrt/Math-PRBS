@@ -31,7 +31,7 @@ It is implemented using an XOR-based Linear Feedback Shift Register (LFSR), whic
 
 =over
 
-=item C<$seq = Math::PRBS::new( I<key =E<gt> value> )>
+=item C<$seq = Math::PRBS->new( I<key =E<gt> value> )>
 
 Creates the sequence iterator C<$seq> using one of the C<key =E<gt> value> pairs described below.
 
@@ -50,7 +50,7 @@ sub new {
 C<prbs> needs an integer I<n> to indicate one of the "standard" PRBS polynomials.
 
     # example: PRBS7 = x**7 + x**6 + 1
-    $seq = Math::PRBS::new( ptbs => 7 );
+    $seq = Math::PRBS->new( prbs => 7 );
 
 The "standard" PRBS polynomials implemented are
 
@@ -71,7 +71,7 @@ The "standard" PRBS polynomials implemented are
             23 => [23,18],
             31 => [31,28],
         );
-        die __PACKAGE__."::new(prbs => '$pairs{prbs}'): standard PRBS include 7, 15, 23, 31" unless exists $prbs{ $pairs{prbs} };
+        die __PACKAGE__."->new(prbs => '$pairs{prbs}'): standard PRBS include 7, 15, 23, 31" unless exists $prbs{ $pairs{prbs} };
         $self->{taps} = [ @{ $prbs{ $pairs{prbs} } } ];
     }
 
@@ -81,15 +81,15 @@ C<taps> needs an array reference containing the powers in the polynomial that yo
 
     # example: x**3 + x**2 + 1
     #   3 and 2 are taps, 1 is not tapped, 0 is implied feedback
-    $seq = Math::PRBS::new( taps => [3,2] );
+    $seq = Math::PRBS->new( taps => [3,2] );
 
 =cut
 
     elsif( exists $pairs{taps} )
     {
-        die __PACKAGE__."::new(taps => $pairs{taps}): argument should be an array reference" unless 'ARRAY' eq ref($pairs{taps});
+        die __PACKAGE__."->new(taps => $pairs{taps}): argument should be an array reference" unless 'ARRAY' eq ref($pairs{taps});
         $self->{taps} = [ sort {$b <=> $a} @{ $pairs{taps} } ];     # taps in descending order
-        die __PACKAGE__."::new(taps => [@{$pairs{taps}}]): need at least one tap" unless @{ $pairs{taps} };
+        die __PACKAGE__."->new(taps => [@{$pairs{taps}}]): need at least one tap" unless @{ $pairs{taps} };
     }
 
 =item C<poly =E<gt> '...'>
@@ -98,23 +98,23 @@ C<poly> needs a string for the bits C<x**k> downto C<x**1>, with a 1 indicating 
 
     # example: x**3 + x**2 + 1
     #   3 and 2 are taps, 1 is not tapped, 0 is implied feedback
-    $seq = Math::PRBS::new( poly => '110' );
+    $seq = Math::PRBS->new( poly => '110' );
 
 =cut
 
     elsif( exists $pairs{poly} )
     {
         local $_ = $pairs{poly};    # used for implicit matching in die-unless and while-condition
-        die __PACKAGE__."::new(poly => '$pairs{poly}'): argument should be an binary string" unless /^[01]*$/;
+        die __PACKAGE__."->new(poly => '$pairs{poly}'): argument should be an binary string" unless /^[01]*$/;
         my @taps = ();
         my $l = length;
         while( m/([01])/g ) {
             push @taps, $l - pos() + 1     if $1;
         }
         $self->{taps} = [ reverse sort {$a <=> $b} @taps ];
-        die __PACKAGE__."::new(poly => '$pairs{poly}'): need at least one tap" unless @taps;
+        die __PACKAGE__."->new(poly => '$pairs{poly}'): need at least one tap" unless @taps;
     } else {
-        die __PACKAGE__."::new(".join(',',@_)."): unknown arguments";
+        die __PACKAGE__."->new(".join(',',@_)."): unknown arguments";
     }
 
     $self->{lfsr} = oct('0b1' . '0'x($self->{taps}[0] - 1));
