@@ -1,6 +1,8 @@
 Revision history for Perl module Math::PRBS.
 
 v0.003  IN PROGRESS
+    - (2018-Jun-13) Adding `->generate_int()` [in progress]
+    - (2018-Jun-13) test suite: remove numeric ordering, except keeping the 00-load first
     - (2018-Jun-13) Add `->nbits()`, with test coverage (issue#6)
     - (2018-Jun-13) Fix test coverage (via author tests) for `oeis_anum()`  (issue#4)
     - (2018-Jun-13) Fix documentation mistakes (issue#3)

@@ -336,6 +336,17 @@ sub generate_all {
     return generate_to_end($self, %opts);
 }
 
+# TODO = document; replicate to generate_all_int
+sub generate_int {
+    my ($self, $n) = @_;
+    $n = 1 unless defined $n;
+    my $nbits = $self->nbits();
+    warn "n bits => $nbits";
+    warn "n ints => $n";
+    my @arr = map { my $bin; $bin = $self->generate($nbits), warn "|int#$_: ", $bin, " => ", oct("0b$bin"); oct("0b$bin") } 1 .. $n;
+    return wantarray ? @arr : join ',', @arr;
+}
+
 =back
 
 =head2 Information
@@ -370,7 +381,9 @@ Returns the number of bits (which is the power of the largest tap).
 =cut
 
 sub nbits {
-    return (sort {$b<=>$a} @{ $_[0]->{taps}})[0];
+    my $self = shift;
+    $self->{nbits} = (sort {$b<=>$a} @{ $self->{taps}})[0] unless exists $self->{nbits};
+    return $self->{nbits};
 }
 
 =item C<$i = $seq-E<gt>taps>
