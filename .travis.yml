@@ -37,9 +37,10 @@ before_script:
 
 script:
   #- PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine prove -lrv t # this gives coverage of all the test rows... not something I need to run
-  - prove -lrv t
-  - cover
-  - prove -lrv xt
+  #- prove -lrv t       # replaced by $(test-dirs)
+  #- cover              # replaced by after_success:
+  #- prove -lrv xt      # replaced by $(test-dirs)
+  - prove -lrv $(test-dirs)
 
 after_success:
   - cover -report coveralls
