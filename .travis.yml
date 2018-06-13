@@ -1,5 +1,6 @@
 language: perl
 perl:
+    - "5.26"
     - "5.24"
     - "5.22"
     - "5.20"
@@ -35,7 +36,8 @@ before_script:
   - coverage-setup
 
 script:
-  - PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine prove -lrv t
+  #- PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine prove -lrv t # this gives coverage of all the test rows... not something I need to run
+  - prove -lrv t
   - cover
   - prove -lrv xt
 
@@ -45,5 +47,5 @@ after_success:
 
 matrix:
   include:
-    - perl: "5.20"
-      env: COVERAGE=1
+    - perl: "5.24"
+      env: COVERAGE=1       # only report coverage to coveralls for this version of perl

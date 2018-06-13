@@ -676,6 +676,19 @@ If you want to create try own polynonial to find a long m-sequence, here are som
 
 =back
 
+=head1 INSTALLATION
+
+To install this module, use your favorite CPAN client.
+
+For a manual install, type the following:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+(On Windows machines, you may need to use "dmake" or "gmake" instead of "make", depending on your setup.)
+
 =head1 AUTHOR
 
 Peter C. Jones C<E<lt>petercj AT cpan DOT orgE<gt>>
@@ -683,11 +696,22 @@ Peter C. Jones C<E<lt>petercj AT cpan DOT orgE<gt>>
 Please report any bugs or feature requests thru the web interface at
 L<https://github.com/pryrt/Math-PRBS/issues>
 
+=begin html
+
+<a href="https://metacpan.org/pod/Math::PRBS"><img src="https://img.shields.io/cpan/v/Math-PRBS.svg?colorB=00CC00" alt="" title="metacpan"></a>
+<a href="http://matrix.cpantesters.org/?dist=Math-PRBS"><img src="http://cpants.cpanauthors.org/dist/Math-PRBS.png" alt="" title="cpan testers"></a>
+<a href="https://github.com/pryrt/Math-PRBS/releases"><img src="https://img.shields.io/github/release/pryrt/Math-PRBS.svg" alt="" title="github release"></a>
+<a href="https://github.com/pryrt/Math-PRBS/issues"><img src="https://img.shields.io/github/issues/pryrt/Math-PRBS.svg" alt="" title="issues"></a>
+<a href="https://travis-ci.org/pryrt/Math-PRBS"><img src="https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master" alt="" title="build status"></a>
+<a href="https://coveralls.io/github/pryrt/Math-PRBS?branch=master"><img src="https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master" alt="" title="test coverage"></a>
+
+=end html
+
 =head1 COPYRIGHT
 
-Copyright (C) 2016 Peter C. Jones
+Copyright (C) 2016-2018 Peter C. Jones
 
-=head1 LICENCE
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

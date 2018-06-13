@@ -36,9 +36,6 @@ use 5.006;
                 },
             },
             keywords => [ 'Pseudorandom Binary Sequence', 'PRBS', 'Linear Feedback Shift Register', 'LFSR'],
-            # don't use manual 'provides', because it's an extra step to maintain, and
-            # can cause problems (getting a mismatch between the $VERSION string and the
-            # provides->{version} will really make it hard to release a next version into CPAN
         },
         # automatically determine the versions for 'provides'; MM->parse_version exists as of MM v6.31, so not a problem with >= 6.46
         #   => this comes out right when printed... but MYMETA.* shows values that look wrong
@@ -102,6 +99,20 @@ distauthtest :: disttest
 # addition to realclean: also delete coverage database, if testcover was run
 realclean ::
 	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) realclean:: skip "rm -rf cover_db"
+
+# auto-generate the README from the lib/Math/PRBS.pm
+README.md :: lib/Math/PRBS.pm
+	podselect -section "NAME|SYNOPSIS|DESCRIPTION|INSTALLATION|AUTHOR|COPYRIGHT|LICENSE" lib/Math/PRBS.pm > README.pod
+	pod2markdown README.pod README.md
+	$(RM_F) README.pod
+
+# auto-generate the LICENSE file from the lib/Math/PRBS.pm
+LICENSE :: lib/Math/PRBS.pm
+	podselect -section "AUTHOR|COPYRIGHT|LICENSE" lib/Math/PRBS.pm > LICENSE.pod
+	pod2text LICENSE.pod LICENSE
+	$(RM_F) LICENSE.pod
+
+docs :: README.md LICENSE
 
 POSTAMBLE
 }
