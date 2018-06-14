@@ -4,7 +4,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use Math::PRBS;
 
@@ -57,6 +57,10 @@ diag( $@ ) if DEBUG;
 
 eval { Math::PRBS->new( poly => '110' )->generate_to_end(5); }; chomp($@);
 ok( $@ ,                                                        "generate_to_end(5) should fail due to requiring a hash argument" );
+diag( $@ ) if DEBUG;
+
+eval { Math::PRBS->new( poly => '110' )->generate_all_int(5); }; chomp($@);
+ok( $@ ,                                                        "generate_all_int(5) should fail due to requiring a hash argument" );
 diag( $@ ) if DEBUG;
 
 eval { Math::PRBS->new( poly => '110' )->seek_to_end(5); }; chomp($@);

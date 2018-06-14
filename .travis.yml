@@ -36,10 +36,6 @@ before_script:
   - coverage-setup
 
 script:
-  #- PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine prove -lrv t # this gives coverage of all the test rows... not something I need to run
-  #- prove -lrv t       # replaced by $(test-dirs)
-  #- cover              # replaced by after_success:
-  #- prove -lrv xt      # replaced by $(test-dirs)
   - prove -lrv $(test-dirs)
 
 after_success:
@@ -48,5 +44,5 @@ after_success:
 
 matrix:
   include:
-    - perl: "5.24"
+    - perl: "5.26"
       env: COVERAGE=1       # only report coverage to coveralls for this version of perl
