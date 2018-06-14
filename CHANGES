@@ -1,7 +1,8 @@
 Revision history for Perl module Math::PRBS.
 
 v0.003  IN PROGRESS
-    - (2018-Jun-13) Adding `->generate_int()` [in progress]
+    - (2018-Jun-14) Add `generate_int()` / `generate_all_int()` (issue#5)
+    - (2018-Jun-14) Rename `nbits()` to `k_bits()` to match with the nomenclature in L</Theory>
     - (2018-Jun-13) test suite: remove numeric ordering, except keeping the 00-load first
     - (2018-Jun-13) Add `->nbits()`, with test coverage (issue#6)
     - (2018-Jun-13) Fix test coverage (via author tests) for `oeis_anum()`  (issue#4)

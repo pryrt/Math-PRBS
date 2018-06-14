@@ -14,7 +14,7 @@ $seq = Math::PRBS->new( prbs => 7 );
 is( ref($seq), 'Math::PRBS',                                        'PRBS7: Create' );
 is( $seq->description, 'PRBS from polynomial x**7 + x**6 + 1',      'PRBS7: ->description');
 is( $seq->oeis_anum, 'A011686',                                     'PRBS7: ->oeis_anum');
-is( $seq->nbits, 7,                                                 'PRBS7: ->nbits');
+is( $seq->k_bits, 7,                                                'PRBS7: ->k_bits');
 is_deeply( $seq->taps(), [7,6],                                     'PRBS7: ->taps          = x**7 + x**6 + 1' );
 is( $seq->next(), '1',                                              'PRBS7: ->next: scalar  = v[i]       = first' );
 is( $seq->tell_state, '1',                                          'PRBS7: ->tell_state    = internal LFSR state' );
@@ -53,7 +53,7 @@ is( $got, $exp,                                                     'PRBS7: ->ge
 $seq = Math::PRBS->new( prbs => 15 );
 is( $seq->description, 'PRBS from polynomial x**15 + x**14 + 1',    'PRBS15: ->description');
 is( $seq->oeis_anum, undef,                                         'PRBS15: ->oeis_anum');
-is( $seq->nbits, 15,                                                'PRBS15: ->nbits');
+is( $seq->k_bits, 15,                                               'PRBS15: ->k_bits');
 is_deeply( $seq->taps(), [15,14],                                   'PRBS15: ->taps         = x**15 + x**14 + 1' );
 is( $seq->tell_state, '16384',                                      'PRBS15: ->tell_state   = internal LFSR state' );
 $seq->generate_to_end();   # $seq->next()    until defined $seq->period();
@@ -63,14 +63,14 @@ is( $seq->period(), 2**15-1,                                        'PRBS15: ->p
 $seq = Math::PRBS->new( prbs => 23 );
 is( $seq->description, 'PRBS from polynomial x**23 + x**18 + 1',    'PRBS23: ->description');
 is( $seq->oeis_anum, undef,                                         'PRBS23: ->oeis_anum');
-is( $seq->nbits, 23,                                                'PRBS23: ->nbits');
+is( $seq->k_bits, 23,                                               'PRBS23: ->k_bits');
 is_deeply( $seq->taps(), [23,18],                                   'PRBS23: ->taps         = x**23 + x**18 + 1' );
 is( $seq->tell_state, '4194304',                                    'PRBS23: ->tell_state   = internal LFSR state' );
 
 $seq = Math::PRBS->new( prbs => 31 );
 is( $seq->description, 'PRBS from polynomial x**31 + x**28 + 1',    'PRBS31: ->description');
 is( $seq->oeis_anum, undef,                                         'PRBS31: ->oeis_anum');
-is( $seq->nbits, 31,                                                'PRBS31: ->nbits');
+is( $seq->k_bits, 31,                                               'PRBS31: ->k_bits');
 is_deeply( $seq->taps(), [31,28],                                   'PRBS31: ->taps         = x**31 + x**28 + 1' );
 is( $seq->tell_state, '1073741824',                                 'PRBS31: ->tell_state   = internal LFSR state' );
 

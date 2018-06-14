@@ -99,6 +99,7 @@ distauthtest :: disttest
 # addition to realclean: also delete coverage database, if testcover was run
 realclean ::
 	$(NOECHO) ( $(TEST_D) cover_db && $(RM_RF) cover_db ) || $(ECHO) realclean:: skip "rm -rf cover_db"
+	$(NOECHO) ( $(TEST_F) MYMETA.json.lock && $(RM_RF) MYMETA.json.lock ) || $(ECHO) realclean:: skip "rm -rf MYMETA.json.lock"
 
 # auto-generate the README from the lib/Math/PRBS.pm
 README.md :: lib/Math/PRBS.pm

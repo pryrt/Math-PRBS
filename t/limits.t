@@ -9,7 +9,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 22;
+use Test::More tests => 26;
 
 use Math::PRBS;
 
@@ -39,6 +39,11 @@ $got = $seq->generate_to_end( limit => 'max');  # 131_071 > 114_681, so enough r
 is( length($got),  44_681,                                      '[17,2]->generate_to_end(limit=>2**17-1)    = string length: 70000-65535');
 is( $seq->tell_i, 114_681,                                      '[17,2]->generate_to_end(limit=>2**17-1)    = tell_i()');
 
+# need to verify limits in generate_all_int for the default max-length (65535)
+#   to save time, I am going to switch to a shorter sequence for arbitrary limit and max limit (below)
+$got =()= $seq->generate_all_int();                             # =()= forces list context for generate_all_int, but translates to scalar context for $got
+is( $got, 65535,                                                '[17,2]->generate_all_int()                 = list length (default limit: 65535)');
+
 # verify seek_to_end limits: first, put to known location in long sequence
 $seq->seek_to_i(1);
 is( $seq->tell_i,       1,                                      '[17,2]->seek_to_n(1), ->tell_i()           = known location before seek_to_end');
@@ -47,6 +52,15 @@ $seq->seek_to_end();    # limit = default 65535
 is( $seq->tell_i,  65_535,                                      '[17,2]->seek_to_end(), ->tell_i()          = seek to default limit => 65535');
 $seq->seek_to_end( limit => 131_071 );
 is( $seq->tell_i, 114_681,                                      '[17,2]->seek_to_end(limit=>2**17-1), ->{i} = seek up to 131_071, but hit end of sequence');
+
+# generate_all_int: arbitrary limit and 'max' limit, using a shorter (non-maximal) sequence
+$seq = Math::PRBS->new( taps => [4,3,2] );
+$got =()= $seq->generate_all_int( limit => 5 );
+is( $got, 5,                                                    '[17,2]->generate_all_int(limit=>5)         = list length (arbitrary limit, less than period)');
+$got =()= $seq->generate_all_int( limit => 13 );
+is( $got, 7,                                                    '[17,2]->generate_all_int(limit=>13)        = list length (arbitrary limit, more than period, but less than 2**k-1)');
+$got =()= $seq->generate_all_int( limit => 'max' );
+is( $got, 7,                                                    '[17,2]->generate_all_int(limit=>"max")     = list length (max limit: period)');
 
 # need to verify generate_all(limit => 'max') for a maximal, to make sure it computes correctly
 $seq = Math::PRBS->new( taps => [17,3] );

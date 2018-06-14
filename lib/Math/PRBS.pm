@@ -261,7 +261,7 @@ If C<limit => $n> is used, will not seek beyond C<tell_i == $n>.
 sub seek_to_end {
     my $self = shift;
 
-    die __PACKAGE__."::generate_to_end(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+    die __PACKAGE__."::seek_to_end(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
 
     my %opts = map lc, @_;  # lowercase name,value pairs for canonical
     my $limit = exists $opts{limit} ? $opts{limit} : 65535;
@@ -336,15 +336,38 @@ sub generate_all {
     return generate_to_end($self, %opts);
 }
 
-# TODO = document; replicate to generate_all_int
+=item C<@all = $seq-E<gt>generate_int( I<$n> )>
+
+Generates the next I<$n> integers in the sequence, wrapping around if it reaches the end (it will generate just one if I<$n> is missing).  In list context, returns the values as a list; in scalar context, returns the string concatenating that list.
+
+=cut
+
 sub generate_int {
     my ($self, $n) = @_;
     $n = 1 unless defined $n;
-    my $nbits = $self->nbits();
-    warn "n bits => $nbits";
-    warn "n ints => $n";
-    my @arr = map { my $bin; $bin = $self->generate($nbits), warn "|int#$_: ", $bin, " => ", oct("0b$bin"); oct("0b$bin") } 1 .. $n;
+    my $k = $self->k_bits();
+    my @arr = map { oct '0b' . $self->generate($k) } 1 .. $n;
     return wantarray ? @arr : join ',', @arr;
+}
+
+=item C<@all = $seq-E<gt>generate_all( I<limit =E<gt> $max_i> )>
+
+Returns the whole sequence of C<k>-bit integers, from the beginning, up to the end of the sequence; in list context, returns the list of values; in scalar context, returns the string concatenating that list.  If the sequence is longer than the default limit of 65535, or the limit given by C<$max_i> if the optional C<limit =E<gt> $max_i> is provided, then it will stop before the end of the sequence.
+
+=cut
+
+sub generate_all_int {
+    my $self = shift;
+
+    die __PACKAGE__."::generate_all_int(@_) requires even number of arguments, expecting name=>value pairs" unless 0 == @_ % 2;
+
+    my %opts = map lc, @_;  # lowercase name,value pairs for canonical
+    my $limit = exists $opts{limit} ? $opts{limit} : 65535;
+    my $maxlimit = 2 ** $self->k_bits - 1;
+    my $period = $self->period( force => $maxlimit );
+    $limit = $period if lc($limit) eq 'max' or $limit > $period;
+    $self->rewind();
+    return $self->generate_int( $limit );
 }
 
 =back
@@ -371,20 +394,24 @@ sub description {
     return "PRBS from polynomial $p + 1";
 }
 
-=item C<$n = $seq-E<gt>nbits>
+=item C<$n = $seq-E<gt>polynomial_degree>
 
-Returns the number of bits (which is the power of the largest tap).
+=item C<$n = $seq-E<gt>k_bits>
+
+Returns the highest power C<k> from the PRBS polynomial.  As described in the L</Theory> section, if you group a maximum length sequence sequence into groups of C<k> bits, you will produce all the C<k>-bit numbers from C<1> to C<2**k - 1>.
 
     $seq = Math::PRBS->new( taps => [6,7] );
-    $n = $seq->nbits();                     # 7
+    $k = $seq->k_bits();                     # 7
 
 =cut
 
-sub nbits {
+sub polynomial_degree {
     my $self = shift;
-    $self->{nbits} = (sort {$b<=>$a} @{ $self->{taps}})[0] unless exists $self->{nbits};
-    return $self->{nbits};
+    $self->{degree} = (sort {$b<=>$a} @{ $self->{taps}})[0] unless exists $self->{degree};
+    return $self->{degree};
 }
+
+BEGIN { *k_bits = \&polynomial_degree; } # alias
 
 =item C<$i = $seq-E<gt>taps>
 
@@ -652,20 +679,22 @@ A pseudorandom binary sequence (PRBS) is the sequence of N unique bits, in this 
 
 In an LFSR, the polynomial description (like C<x**3 + x**2 + 1>) indicates which bits are "tapped" to create the feedback bit: the taps are the powers of x in the polynomial (3 and 2).  The C<1> is really the C<x**0> term, and isn't a "tap", in the sense that it isn't used for generating the feedback; instead, that is the location where the new feedback bit comes back into the shift register; the C<1> is in all characteristic polynomials, and is implied when creating a new instance of B<Math::PRBS>.
 
-If the largest power of the polynomial is C<k>, there are C<k+1> bits in the register (one for each of the powers C<k..1> and one for the C<x**0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and that sequence is called a maximum length sequence  or m-sequence; there can be more than one m-sequence for a given C<k>.  One useful feature of an m-sequence is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits (*), except for C<k> zeroes in a row.  For example,
+If the largest power of the polynomial is C<k> (ie, a polynomial of degree C<k>), there are C<k+1> bits in the register (one for each of the powers C<k> down to C<1> and one for the C<x**0 = 1>'s feedback bit).  For any given C<k>, the largest sequence that can be produced is C<N = 2^k - 1>, and any sequence with that length is called a "maximum length sequence" or m-sequence; there can be more than one m-sequence for a given C<k>.
+
+One useful feature of an m-sequence is that if you divide it into every possible partial sequence that's C<k> bits long (wraping from N-1 to 0 to make the last few partial sequences also C<k> bits), you will generate every possible combination of C<k> bits (*), except for C<k> zeroes in a row.  (It then includes the binary representation of every k-bit integer from C<1> to C<2**k - 1>.)  For example,
 
     # x**3 + x**2 + 1 = "1011100"
-    "_101_1100 " -> 101
-    "1_011_100 " -> 011
-    "10_111_00 " -> 111
-    "101_110_0 " -> 110
-    "1011_100_ " -> 100
-    "1_0111_00 " -> 001 (requires wrap to get three digits: 00 from the end, and 1 from the beginning)
-    "10_1110_0 " -> 010 (requires wrap to get three digits: 0 from the end, and 10 from the beginning)
+    "_101_1100 " -> 101 (5)
+    "1_011_100 " -> 011 (3)
+    "10_111_00 " -> 111 (7)
+    "101_110_0 " -> 110 (6)
+    "1011_100_ " -> 100 (4)
+    "1_0111_00 " -> 001 (1) (requires wrap to get three digits: 00 from the end of the sequence, and 1 from the beginning)
+    "10_1110_0 " -> 010 (2) (requires wrap to get three digits: 0 from the end of the sequence, and 10 from the beginning)
 
-The Wikipedia:LFSR article (see L</REFERENCES>) lists some polynomials that create m-sequence for various register sizes, and links to Philip Koopman's complete list up to C<k=64>.
+The Wikipedia:LFSR article lists some polynomials that create m-sequence for various register sizes, and links to Philip Koopman's complete list up to C<k=64>  (see L</REFERENCES> for links to both).
 
-If you want to create try own polynonial to find a long m-sequence, here are some things to consider: 1) the number of taps for the feedback (remembering not to count the feedback bit as a tap) must be even; 2) the entire set of taps must be relatively prime; 3) those two conditions are necesssary, but not sufficient, so you may have to try multiple polynomials to find an m-sequence; 4) keep in mind that the time to compute the period (and thus determine if it's an m-sequence) doubles every time C<k> increases by 1; as the time increases, it makes more sense to look at the complete list up to C<k=64>), and pure-perl is probably tpp wrong language for searching C<kE<gt>64>.
+If you want to create your own polynonial to find a long m-sequence, here are some things to consider: 1) the number of taps for the feedback (remembering not to count the feedback bit as a tap) must be even; 2) the entire set of taps must be relatively prime; 3) those two conditions are necesssary, but not sufficient, so you may have to try multiple polynomials to find an m-sequence; 4) keep in mind that the time to compute the period (and thus determine if it's an m-sequence) doubles every time C<k> increases by 1; as the time increases, it makes more sense to look at the complete list up to C<k=64>), and pure-perl is probably tpp wrong language for searching C<kE<gt>64>.
 
 (*) Since a maximum length sequence contains every k-bit combination (except all zeroes), it can be used for verifying that software or hardware behaves properly for every possible sequence of k-bits.
 
