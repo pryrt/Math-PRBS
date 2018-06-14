@@ -6,11 +6,14 @@ MANIFEST			This list of files
 MANIFEST.SKIP		Files to skip for the dist/tarball/SIGNATURE
 README.md
 t/00-load.t
-t/01-err.t
-t/02-prbs.t
-t/03-taps.t
-t/04-poly.t
-t/05-seek.t
-t/06-limits.t
-xt/00-sign.t
+t/err.t
+t/intseq.t
+t/limits.t
+t/poly.t
+t/prbs.t
+t/seek.t
+t/taps.t
+xt/oeis-number.t
+xt/signature.t
+
 # the META files and SIGNATURE should be automatically generated during the build process.
