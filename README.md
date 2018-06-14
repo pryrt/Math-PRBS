@@ -1,6 +1,6 @@
 # NAME
 
-Math::PRBS - Generate Pseudorandom Binary Sequences using an Iterator-based Linear Feedback Shift Register
+Math::PRBS - Generate Pseudorandom Binary Sequences using an iterator-based Linear Feedback Shift Register
 
 # SYNOPSIS
 
@@ -9,12 +9,13 @@ Math::PRBS - Generate Pseudorandom Binary Sequences using an Iterator-based Line
     my $prbs7 = Math::PRBS->new( prbs => 7 );
     my ($i, $value) = $x3x2t->next();
     my @p7 = $prbs7->generate_all();
+    my @ints = $prbs7->generate_all_int();
 
 # DESCRIPTION
 
 This module will generate various Pseudorandom Binary Sequences (PRBS).  This module creates a iterator object, and you can use that object to generate the sequence one value at a time, or _en masse_.
 
-The generated sequence is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.
+The generated sequence is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.  (You can also convert the bitstream into a sequence of integers using the `generate_int` and `generate_all_int` methods.)
 
 It is implemented using an XOR-based Linear Feedback Shift Register (LFSR), which is described using a feedback polynomial (or reciprocal characteristic polynomial).  The terms that appear in the polynomial are called the 'taps', because you tap off of that bit of the shift register for generating the feedback for the next value in the sequence.
 
@@ -49,7 +50,7 @@ Please report any bugs or feature requests thru the web interface at
 
 # COPYRIGHT
 
-Copyright (C) 2016-2018 Peter C. Jones
+Copyright (C) 2016,2018 Peter C. Jones
 
 # LICENSE
 

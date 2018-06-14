@@ -1,6 +1,6 @@
 =head1 NAME
 
-Math::PRBS - Generate Pseudorandom Binary Sequences using an Iterator-based Linear Feedback Shift Register
+Math::PRBS - Generate Pseudorandom Binary Sequences using an iterator-based Linear Feedback Shift Register
 
 =cut
 package Math::PRBS;
@@ -16,12 +16,13 @@ use version 0.77; our $VERSION = version->declare('0.003');
     my $prbs7 = Math::PRBS->new( prbs => 7 );
     my ($i, $value) = $x3x2t->next();
     my @p7 = $prbs7->generate_all();
+    my @ints = $prbs7->generate_all_int();
 
 =head1 DESCRIPTION
 
 This module will generate various Pseudorandom Binary Sequences (PRBS).  This module creates a iterator object, and you can use that object to generate the sequence one value at a time, or I<en masse>.
 
-The generated sequence is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.
+The generated sequence is a series of 0s and 1s which appears random for a certain length, and then repeats thereafter.  (You can also convert the bitstream into a sequence of integers using the C<generate_int> and C<generate_all_int> methods.)
 
 It is implemented using an XOR-based Linear Feedback Shift Register (LFSR), which is described using a feedback polynomial (or reciprocal characteristic polynomial).  The terms that appear in the polynomial are called the 'taps', because you tap off of that bit of the shift register for generating the feedback for the next value in the sequence.
 
@@ -743,6 +744,20 @@ For a manual install, type the following:
 
 (On Windows machines, you may need to use "dmake" or "gmake" instead of "make", depending on your setup.)
 
+=head1 SEE ALSO
+
+=over
+
+=item * L<Math::NumSeq> - an iterator-based sequence generator, with a variety of numeric sequences that can be generated
+
+The primary API for B<Math::PRBS> was based on L<Math::NumSeq>, but it was decided to not make B<Math::PRBS> dependent on it, because L<Math::NumSeq> does not L<seem to install on Windows|http://matrix.cpantesters.org/?dist=Math-NumSeq>.
+
+=item * L<Math::Sequence> and L<Math::Series> - generate sequences using symbolic forumla
+
+=item * L<Math::PSRG> - Implements a (159, 31, 0) LFSR
+
+=back
+
 =head1 AUTHOR
 
 Peter C. Jones C<E<lt>petercj AT cpan DOT orgE<gt>>
@@ -763,7 +778,7 @@ L<https://github.com/pryrt/Math-PRBS/issues>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2016-2018 Peter C. Jones
+Copyright (C) 2016,2018 Peter C. Jones
 
 =head1 LICENSE
 
