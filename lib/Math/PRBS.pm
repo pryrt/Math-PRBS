@@ -7,7 +7,7 @@ package Math::PRBS;
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = version->declare('0.003');
+use version 0.77; our $VERSION = version->declare('0.004');
 
 =head1 SYNOPSIS
 
@@ -351,7 +351,9 @@ sub generate_int {
     return wantarray ? @arr : join ',', @arr;
 }
 
-=item C<@all = $seq-E<gt>generate_all( I<limit =E<gt> $max_i> )>
+=item C<@all = $seq-E<gt>generate_all_int( )>
+
+=item C<@all = $seq-E<gt>generate_all_int( I<limit =E<gt> $max_i> )>
 
 Returns the whole sequence of C<k>-bit integers, from the beginning, up to the end of the sequence; in list context, returns the list of values; in scalar context, returns the string concatenating that list.  If the sequence is longer than the default limit of 65535, or the limit given by C<$max_i> if the optional C<limit =E<gt> $max_i> is provided, then it will stop before the end of the sequence.
 
@@ -403,6 +405,10 @@ Returns the highest power C<k> from the PRBS polynomial.  As described in the L<
 
     $seq = Math::PRBS->new( taps => [6,7] );
     $k = $seq->k_bits();                     # 7
+
+When using C<generate_int()> to generate the next integer in the sequence, it is consuming C<k_bits()> bits from the sequence to create the decimal integer.
+
+    @integers = $seq->generate_int($num_ints);       # consumes $seq->k_bits() bits of the sequence per integer generated
 
 =cut
 
