@@ -40,10 +40,17 @@ I use a local svn client to checkout the GitHub repo.  All these things can be d
             dmake disttest          # optional, if you want to verify that make test will work for the CPAN audience
             set MM_SIGN_DIST=1      # enable signatures for build
             set TEST_SIGNATURE=1    # verify signatures during `distauthtest`
+            perl Makefile.PL        # need to regenerate Makefile once MM_SIGN_DIST is enabled
             dmake distauthtest      # run author tests (which will test the signature)
             set TEST_SIGNATURE=     # clear signature verification during `disttest`
             dmake dist              # actually make the tarball
             dmake realclean         # clean out this directory
+            set MM_SIGN_DIST=       # clear signatures after build
+
+            # verify the signature inside the tarball using cpanm:
+            cpanm --look *.gz
+            cpansign -v
+            exit
 
     * **svn:** final commit of the development branch
 
