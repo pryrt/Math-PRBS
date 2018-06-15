@@ -15,5 +15,4 @@ t/seek.t
 t/taps.t
 xt/oeis-number.t
 xt/signature.t
-
 # the META files and SIGNATURE should be automatically generated during the build process.

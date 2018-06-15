@@ -11,4 +11,5 @@ pod.css
 ^.svn/
 ^MYMETA
 .travis.yml$
+appveyor.yml$
 ^RELEASE.md$
