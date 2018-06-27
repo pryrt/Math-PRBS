@@ -7,7 +7,7 @@ package Math::PRBS;
 use warnings;
 use strict;
 
-use version 0.77; our $VERSION = version->declare('0.004');
+use version 0.77; our $VERSION = version->declare('0.004001');
 
 =head1 SYNOPSIS
 
@@ -773,13 +773,13 @@ L<https://github.com/pryrt/Math-PRBS/issues>
 
 =begin html
 
-<a href="https://metacpan.org/pod/Math::PRBS"><img src="https://img.shields.io/cpan/v/Math-PRBS.svg?colorB=00CC00" alt="" title="metacpan"></a>
-<a href="http://matrix.cpantesters.org/?dist=Math-PRBS"><img src="http://cpants.cpanauthors.org/dist/Math-PRBS.png" alt="" title="cpan testers"></a>
-<a href="https://github.com/pryrt/Math-PRBS/releases"><img src="https://img.shields.io/github/release/pryrt/Math-PRBS.svg" alt="" title="github release"></a>
-<a href="https://github.com/pryrt/Math-PRBS/issues"><img src="https://img.shields.io/github/issues/pryrt/Math-PRBS.svg" alt="" title="issues"></a>
-<a href="https://ci.appveyor.com/project/pryrt/math-prbs"><img src="https://ci.appveyor.com/api/projects/status/cj6cbq7u9velb8wx?svg=true" alt="" title="appveyor build status"></a>
-<a href="https://travis-ci.org/pryrt/Math-PRBS"><img src="https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master" alt="" title="travis build status"></a>
-<a href="https://coveralls.io/github/pryrt/Math-PRBS?branch=master"><img src="https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master" alt="" title="test coverage"></a>
+<a href="https://metacpan.org/pod/Math::PRBS"><img src="https://img.shields.io/cpan/v/Math-PRBS.svg?colorB=00CC00" alt="[metacpan]" title="metacpan"></a>
+<a href="http://matrix.cpantesters.org/?dist=Math-PRBS"><img src="http://cpants.cpanauthors.org/dist/Math-PRBS.png" alt="[cpantesters]" title="cpan testers"></a>
+<a href="https://github.com/pryrt/Math-PRBS/releases"><img src="https://img.shields.io/github/release/pryrt/Math-PRBS.svg" alt="[github]" title="github release"></a>
+<a href="https://github.com/pryrt/Math-PRBS/issues"><img src="https://img.shields.io/github/issues/pryrt/Math-PRBS.svg" alt="[issues]" title="issues"></a>
+<a href="https://ci.appveyor.com/project/pryrt/math-prbs"><img src="https://ci.appveyor.com/api/projects/status/cj6cbq7u9velb8wx?svg=true" alt="[appveyor]" title="appveyor build status"></a>
+<a href="https://travis-ci.org/pryrt/Math-PRBS"><img src="https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master" alt="[travis]" title="travis build status"></a>
+<a href="https://coveralls.io/github/pryrt/Math-PRBS?branch=master"><img src="https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master" alt="[coveralls]" title="test coverage"></a>
 
 =end html
 
