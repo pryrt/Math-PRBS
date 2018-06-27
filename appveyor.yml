@@ -3,14 +3,14 @@ environment:
     # each 'perl' is one of the version numbers from https://chocolatey.org/packages/StrawberryPerl
     #   note that some refuse to install on appveyor's system: 5.12.3.0, 5.12.3.1, 5.16.3.1
     #   the oldest that I can get to work is 5.14
-    - perl: default
+    #- perl: default
     #- perl: 5.26.2.1
-    - perl: 5.24.4.1
-    - perl: 5.22.3.1
-    - perl: 5.20.3.3
+    #- perl: 5.24.4.1
+    #- perl: 5.22.3.1
+    #- perl: 5.20.3.3
     - perl: 5.18.4.1
-    - perl: 5.16.3.20170202
-    - perl: 5.14.4.1
+    #- perl: 5.16.3.20170202
+    #- perl: 5.14.4.1
 
 skip_tags: true
 
@@ -30,7 +30,7 @@ install:
   - set PATH=C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
   - cpanm --installdeps .
   # --installdeps doesn't include Devel::Cover, since it's not a PREREQ_PM; but appveyor needs it, so install it manually
-  - cpanm Devel::Cover
+  - cpanm --notest Devel::Cover
 
 build_script:
   - echo build using strawberry perl v%perl%...
