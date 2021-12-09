@@ -7,7 +7,7 @@ Math::PRBS - Generate Pseudorandom Binary Sequences using an iterator-based Line
     use Math::PRBS;
     my $x3x2  = Math::PRBS->new( taps => [3,2] );
     my $prbs7 = Math::PRBS->new( prbs => 7 );
-    my ($i, $value) = $x3x2t->next();
+    my ($i, $value) = $x3x2->next();
     my @p7 = $prbs7->generate_all();
     my @ints = $prbs7->generate_all_int();
 
@@ -45,8 +45,8 @@ Please report any bugs or feature requests thru the web interface at
     <a href="https://github.com/pryrt/Math-PRBS/releases"><img src="https://img.shields.io/github/release/pryrt/Math-PRBS.svg" alt="[github]" title="github release"></a>
     <a href="https://github.com/pryrt/Math-PRBS/issues"><img src="https://img.shields.io/github/issues/pryrt/Math-PRBS.svg" alt="[issues]" title="issues"></a>
     <a href="https://ci.appveyor.com/project/pryrt/math-prbs"><img src="https://ci.appveyor.com/api/projects/status/cj6cbq7u9velb8wx?svg=true" alt="[appveyor]" title="appveyor build status"></a>
-    <a href="https://travis-ci.org/pryrt/Math-PRBS"><img src="https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master" alt="[travis]" title="travis build status"></a>
-    <a href="https://coveralls.io/github/pryrt/Math-PRBS?branch=master"><img src="https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master" alt="[coveralls]" title="test coverage"></a>
+    <a href="https://github.com/pryrt/Math-PRBS/actions/workflows/perl-ci.yml"><img src="https://github.com/pryrt/Math-PRBS/actions/workflows/perl-ci.yml/badge.svg" alt="[gh action]" title="gh action build status"></a>
+    <a href="https://coveralls.io/github/pryrt/Math-PRBS?branch=main"><img src="https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=main" alt="[coveralls]" title="test coverage"></a>
 </div>
 
 # COPYRIGHT
