@@ -53,8 +53,7 @@ jobs:
       - name: Update Trust = Trust myself
         id: trust_myself
         run: |
-          # perl -le 'print for qw/trust 5 y quit/' | gpg --no-tty --command-fd 0 --edit-key 0x85FA5F2CF71E1CD6
-          gpg --no-tty --command-fd 0 --edit-key 0x85FA5F2CF71E1CD6 << EOTRUST
+          gpg --no-tty --command-fd 0 --edit-key 0x58DCC5E54FCF6F48 << EOTRUST
           trust
           5
           y
