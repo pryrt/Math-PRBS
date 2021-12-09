@@ -36,7 +36,7 @@ jobs:
       # Set up GPG per https://stackoverflow.com/a/66457517/5508606 ; updated by most recent example in action repo
       - name: Import GPG Key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v4.1
+        uses: crazy-max/ghaction-import-gpg@v4
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
