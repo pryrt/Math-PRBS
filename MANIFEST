@@ -3,7 +3,6 @@ lib/Math/PRBS.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
-MANIFEST.SKIP		Files to skip for the dist/tarball/SIGNATURE
 README.md
 t/00-load.t
 t/err.t
@@ -15,4 +14,3 @@ t/seek.t
 t/taps.t
 xt/oeis-number.t
 xt/signature.t
-# the META files and SIGNATURE should be automatically generated during the build process.

@@ -13,3 +13,5 @@ pod.css
 .travis.yml$
 appveyor.yml$
 ^RELEASE.md$
+^.github/
+^MANIFEST\.
