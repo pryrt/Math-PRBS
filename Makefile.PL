@@ -95,7 +95,9 @@ authtest ::
 # run author-tests on the distribution
 distauthtest :: disttest
 	cd $(DISTVNAME) && $(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
-	cat SIGNATURE
+	$(NOECHO) $(ECHO) ----- START
+	cat $(DISTVNAME)/SIGNATURE
+	$(NOECHO) $(ECHO) ----- END
 
 # addition to realclean: also delete coverage database, if testcover was run
 realclean ::
