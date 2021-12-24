@@ -255,7 +255,7 @@ sub seek_forward_n {
 
 Moves forward until it's reached the end of the the period.  (Will start in the first period using C<tell_i % period>.)
 
-If C<limit => $n> is used, will not seek beyond C<tell_i == $n>.
+If C<limit =E<gt> $n> is used, will not seek beyond C<tell_i == $n>.
 
 =cut
 
