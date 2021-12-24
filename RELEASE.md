@@ -2,8 +2,9 @@
 [![](http://cpants.cpanauthors.org/dist/Math-PRBS.png "cpan testers")](http://matrix.cpantesters.org/?dist=Math-PRBS)
 [![](https://img.shields.io/github/release/pryrt/Math-PRBS.svg "github release")](https://github.com/pryrt/Math-PRBS/releases)
 [![](https://img.shields.io/github/issues/pryrt/Math-PRBS.svg "issues")](https://github.com/pryrt/Math-PRBS/issues)
-[![](https://travis-ci.org/pryrt/Math-PRBS.svg?branch=master "build status")](https://travis-ci.org/pryrt/Math-PRBS)
-[![](https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=master "test coverage")](https://coveralls.io/github/pryrt/Math-PRBS?branch=master)
+[![](https://ci.appveyor.com/api/projects/status/cj6cbq7u9velb8wx?svg=true "appveyor build status")](https://ci.appveyor.com/project/pryrt/math-prbs)
+[![](https://github.com/pryrt/Math-PRBS/actions/workflows/perl-ci.yml/badge.svg "gh action build status")](https://github.com/pryrt/Math-PRBS/actions/workflows/perl-ci.yml)
+[![](https://coveralls.io/repos/github/pryrt/Math-PRBS/badge.svg?branch=main "test coverage")](https://coveralls.io/github/pryrt/Math-PRBS?branch=main)
 
 # Releasing Math::PRBS
 

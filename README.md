@@ -51,7 +51,7 @@ Please report any bugs or feature requests thru the web interface at
 
 # COPYRIGHT
 
-Copyright (C) 2016,2018 Peter C. Jones
+Copyright (C) 2016,2018,2021 Peter C. Jones
 
 # LICENSE
 
