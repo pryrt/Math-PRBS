@@ -94,6 +94,8 @@ authtest ::
 
 # run author-tests on the distribution
 distauthtest :: disttest
+	ls -latr
+	pwd
 	cd $(DISTVNAME) && $(TEST_D) xt && $(MAKE) test TEST_FILES='xt/*.t'
 	$(NOECHO) $(ECHO) ----- START
 	cat $(DISTVNAME)/SIGNATURE
