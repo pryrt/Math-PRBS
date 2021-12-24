@@ -53,7 +53,7 @@ jobs:
       - name: Update Trust = Trust myself
         id: trust_myself
         run: |
-          gpg --no-tty --command-fd 0 --edit-key 0x58DCC5E54FCF6F48 << EOTRUST
+          gpg --no-tty --command-fd 0 --edit-key 0x85FA5F2CF71E1CD6 << EOTRUST
           trust
           5
           y
