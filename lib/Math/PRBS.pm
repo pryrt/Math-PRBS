@@ -32,7 +32,7 @@ It is implemented using an XOR-based Linear Feedback Shift Register (LFSR), whic
 
 =over
 
-=item C<$seq = Math::PRBS->new( I<key =E<gt> value> )>
+=item C<$seq = Math::PRBS-E<gt>new( I<key =E<gt> value> )>
 
 Creates the sequence iterator C<$seq> using one of the C<key =E<gt> value> pairs described below.
 
