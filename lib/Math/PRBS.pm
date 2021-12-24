@@ -760,7 +760,7 @@ The primary API for B<Math::PRBS> was based on L<Math::NumSeq>, but it was decid
 
 =item * L<Math::Sequence> and L<Math::Series> - generate sequences using symbolic forumla
 
-=item * L<Math::PSRG> - Implements a (159, 31, 0) LFSR
+=item * L<Math::PRSG> - Implements a (159, 31, 0) LFSR
 
 =back
 
