@@ -81,6 +81,8 @@ jobs:
       - name: Build & Sign
         run: |
           export GPG_TTY=$(tty)
+          echo GPG_TTY _$(GPG_TTY)_
+          echo tty _$(tty)_
           perl Makefile.PL
           make
           make distauthtest
